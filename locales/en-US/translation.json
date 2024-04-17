@@ -1,0 +1,42 @@
+{
+	"command": {
+		"common": {
+			"errors": {
+				"generic": "Something went wrong. Skill issue I guess..."
+				
+			},
+			"buttons": {
+				"cancel": "Cancel"
+			}
+		}
+	},
+		"modal":{
+			"character_create":{
+				"title":"Character Creation",
+				"nameInput":{"label":"What's the name of your character?"},
+				"hobbiesInput":{"label":"What's some of the favorite hobbies your character has?"}
+				
+			}
+		},
+		"monopoly":{
+			"addPlayerFailure": "Player already added.",
+	"addPlayerSuccess": "Player added.",
+	"diceRoll": "%s rolled a %s (%s + %s).",
+	"doubleRoll": "It's a double.",
+	"gameBeginning": "Jellow. :wave:",
+	"jailedFromRolling": "%s made 3 doubles and is now jailed.",
+	"listCleared": "All players removed.",
+	"notEnoughPlayers": "You need at least 2 players to proceed (%s left).",
+	"playerEarning": "%s earned $%s.",
+	"playerSpending": "%s paid $%s.",
+	"reachedTile": "%s reached %s.",
+	"removePlayerSuccess": "Player removed.",
+	"removePlayerFailure": "Player not in the list.",
+	"start": "Game started",
+	"timeout": "%s failed to react in time. Proceeding to next player.",
+	"turn": "It's %s's turn. Please make a move within %s seconds by typing `r!dice`.",
+	"unknownPlayer": "Unkown Player."
+		}
+	}
+
+

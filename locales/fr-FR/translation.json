@@ -1,0 +1,15 @@
+{
+	"command": {
+		"common": {
+			"errors": {
+				"generic": ""
+				
+			},
+			"buttons": {
+				"cancel": "Cancel"
+			}
+		},
+		"":{}
+	},
+	"embeds":{}
+}
