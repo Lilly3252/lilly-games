@@ -46,7 +46,7 @@ export class Player {
 				this.interaction.reply(`${this.username} reached Go.`);
 				this.earn(200);
 			} else {
-				this.interaction.reply("not greater than 40 and not a remainder of 0 , so they just moved from A to B without pass go");
+				this.interaction.reply("not greater than 40 and not a remainder of 0 , so they just moved from A to B without pass go and i need to do something with that");
 			}
 		}
 	}
