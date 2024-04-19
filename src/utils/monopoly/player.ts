@@ -1,12 +1,12 @@
 import { isEqual } from "lodash";
-import { InterfaceMonopoly } from "#utils/types/monopoly.js";
-import { User } from "discord.js";
+import { TMonopoly } from "#utils/types/monopoly.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import { Session } from "./session.js";
 import Board from "./board.json";
+
 export class Player {
 	cash: number;
-	properties: Map<string, InterfaceMonopoly>;
-	isJailed: boolean;
+	properties: Map<string, TMonopoly[]>;
 	ownsFreedomChance: boolean;
 	ownsFreedomCommunity: boolean;
 	_position: number;
@@ -14,17 +14,12 @@ export class Player {
 	turnsInJail: number;
 	id: string;
 	username: string;
-	board: InterfaceMonopoly[] = Board;
-	constructor(user: User, session: Session) {
-		this.id = user.id;
-		this.username = user.username;
+	board = Board;
+	interaction: ChatInputCommandInteraction;
+	constructor() {
 		this.cash = 1500;
 		this.properties = new Map();
-		this.isJailed = false;
-		this.ownsFreedomChance = false;
-		this.ownsFreedomCommunity = false;
-		this._position = 0;
-		this.session = session;
+		this._position = 0; // referencing the array starting "Go is position 0"
 		this.turnsInJail = 0;
 	}
 
@@ -35,22 +30,24 @@ export class Player {
 	get position() {
 		return this.board[this._position];
 	}
-
+	set isJailed(boolean: boolean) {
+		if (boolean === true) {
+			true;
+		} else false;
+	}
 	advance(number: number) {
 		const newPosition = this._position + number;
-
+		const remainder = newPosition % this.board.length;
 		if (newPosition >= this.board.length) {
-			this._position = newPosition - this.board.length;
+			this.interaction.reply(`${this.username} passed by Go. Collected 200$ and advanced to ${this.position.name}`);
+			this.earn(200);
 		} else {
-			this._position = newPosition;
-		}
-		if (newPosition === this.board.length) {
-			this.session.stackMessage(`${this.username} reached Go.`);
-			this.earn(200);
-		} else if (newPosition > this.board.length) {
-			this.session.stackMessage(`${this.username} passed by Go.`);
-			this.earn(200);
-			this.session.stackMessage(`${this.username} stopped at ${this.position.name}.`);
+			if (remainder === 0) {
+				this.interaction.reply(`${this.username} reached Go.`);
+				this.earn(200);
+			} else {
+				this.interaction.reply("not greater than 40 and not a remainder of 0 , so they just moved from A to B without pass go");
+			}
 		}
 	}
 
@@ -58,34 +55,51 @@ export class Player {
 		this.pay(amount || property.cost);
 		property.owner = this;
 		this.session.setTakenProperty(property, this);
-		this.session.stackMessage(`${this.username} now owns ${property.name}`);
+		this.interaction.reply(`${this.username} now owns ${property.name}`);
 	}
 	earn(amount: number) {
 		this.cash += amount;
-		this.session.stackMessage(`${this.username} earned ${amount}.`);
+		this.interaction.reply(`${this.username} earned ${amount}.`);
 	}
 
 	jail(reason: string) {
 		this.isJailed = true;
-		this.session.stackMessage(
-			{
-				"card": `${this.username} drew a Go to Jail card and was jailed.`,
-				"tile": `${this.username} stepped on Go to Jail and was jailed.`,
-				"3 doubles": `${this.username} made 3 doubles, and went to jail. `
-			}[reason]
-		);
+		switch (reason) {
+			case "card": {
+				this.interaction.reply({ content: `${this.username} drew a Go to Jail card and was jailed.` });
+				break;
+			}
+			case "tile": {
+				this.interaction.reply({ content: `${this.username} stepped on Go to Jail and was jailed.` });
+				break;
+			}
+			case "3 doubles": {
+				this.interaction.reply({ content: `${this.username} made 3 doubles, and went to jail. ` });
+				break;
+			}
+		}
 	}
 
 	free(reason: string) {
 		this.isJailed = false;
-		this.session.stackMessage(
-			{
-				"card": `${this.username} consumed a freedom card and was freed.`,
-				"3 turns": `${this.username} stayed in jail for too long and was freed.`,
-				"doubles": `${this.username} rolled a double and did a barrel roll out of jail.`,
-				"fine": `${this.username} paid some money ($50) and was freed.`
-			}[reason]
-		);
+		switch (reason) {
+			case "card": {
+				this.interaction.reply({ content: `${this.username} consumed a freedom card and was freed.` });
+				break;
+			}
+			case "3 turns": {
+				this.interaction.reply({ content: `${this.username} stayed in jail for too long and was freed.` });
+				break;
+			}
+			case "doubles": {
+				this.interaction.reply({ content: `${this.username} rolled a double and did a barrel roll out of jail. ` });
+				break;
+			}
+			case "fine": {
+				this.interaction.reply({ content: `${this.username} paid some money ($50) and was freed. ` });
+				break;
+			}
+		}
 		if (reason === "card") {
 			if (this.ownsFreedomCommunity) {
 				this.ownsFreedomCommunity = false;
@@ -100,7 +114,7 @@ export class Player {
 		if (this._position < 0) {
 			this._position += this.board.length;
 		}
-		this.session.stackMessage(`${this.username} went back ${-number} tiles.`);
+		this.interaction.reply(`${this.username} went back ${-number} tiles.`);
 	}
 
 	ownsTile = (function () {
@@ -111,7 +125,7 @@ export class Player {
 
 	pay(amount: number) {
 		this.cash -= amount;
-		this.session.stackMessage(`${this.username} paid $${amount}.`);
+		this.interaction.reply(`${this.username} paid $${amount}.`);
 	}
 
 	releaseProperty(tile, getMoney) {
