@@ -1,0 +1,89 @@
+monopoly card title deed : 302 * 188
+in JSON board file , the group is the card own set , first number is the group number , second number is the card , third number is if you have the first 2 , you have the full set 
+they can only put houses on properties if they have full set 
+
+the code is along the line of : 
+hasFullPropertySet = function(space) {
+
+  if(typeof space == 'undefined'){
+    console.log("Programming Error: forgot to pass in space");
+    return false;
+  }
+
+  var group = space.group;
+
+  if(!group.length){
+    return false;
+  }
+
+  var set = group[0];
+  var num = group[1];
+  var total = group[2];
+
+  var count = 0;
+
+  for(var i=0; i<this.ownedProperties.length; i++){
+    var s = this.ownedProperties[i];
+    if(s.group && s.group[0] == set){
+      count++;
+    }
+  }
+
+  if(count == total){
+    return true;
+  }
+
+  return false;
+
+
+}
+
+also this 
+
+ownsProperty = function(space) {
+
+  for(var i=0; i<this.ownedProperties.length; i++){
+    var s = this.ownedProperties[i];
+    if(space.id == s.id){
+      return true;
+    }
+  }
+
+  return false;
+
+}
+
+and this 
+
+numberOfOwnedUtilities = function() {
+
+  var count = 0;
+  for(var i=0; i<this.ownedProperties.length; i++){
+    var s = this.ownedProperties[i];
+    if(s.type == 'utility'){
+      count++;
+    }
+  }
+
+  return count;
+}
+
+
+
+executeTurn(player: Player, fixedRoll: number) {
+    const roll = this.makeDiceRoll(player);
+    const finalRoll = typeof roll === 'number' ? roll : roll.rollTotal;
+    
+    if (player.isJailed) {
+        this.handleJailedPlayer(player);
+        return;
+    } else {
+        if (finalRoll.doubleCount === 3) {
+            player.jail("doubles");
+            return;
+        }
+        player.advance(finalRoll);
+        this.handleTileAction(player, finalRoll);
+        return;
+    }
+}
