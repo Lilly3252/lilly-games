@@ -26,3 +26,8 @@ export interface Property {
 export type PropertyMap = Record<string, BoardSpace>;
 
 export type BoardData = BoardSpace[];
+export interface ChanceCard {
+	description: string;
+	type: string;
+	amount: number | string | number[];
+}

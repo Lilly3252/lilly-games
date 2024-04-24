@@ -16,6 +16,8 @@ export class Player {
 	public ownsFreedomCommunity: boolean;
 	public ownsFreedomChance: boolean;
 	public hasLeftGame: boolean;
+	doublesCount: number;
+	rollsCount: number;
 
 	public constructor(name: string, user: User, board: BoardData) {
 		this.name = name;
@@ -36,6 +38,22 @@ export class Player {
 		return this.board[this._position];
 	}
 
+	incrementDoublesCount(): void {
+		this.doublesCount++;
+	}
+
+	resetDoublesCount(): void {
+		this.doublesCount = 0;
+	}
+
+	incrementRollsCount(): void {
+		this.rollsCount++;
+	}
+
+	getOutOfJail(): void {
+		this.isJailed = false;
+	}
+
 	public async move(number: number): Promise<void> {
 		const newPosition = (this._position + number) % this.board.length;
 
@@ -47,6 +65,23 @@ export class Player {
 		await this.interaction.reply(`${this.username} moved to ${this.position.name}`);
 	}
 
+	public receiveMoney(amount: number): void {
+		this.balance += amount;
+	}
+
+	public goToJail(): void {
+		this.resetDoublesCount();
+		this.isJailed = true;
+		this._position = 10; // Assuming jail position is 10
+	}
+
+	public payMoney(amount: number): void {
+		if (this.balance >= amount) {
+			this.balance -= amount;
+		} else {
+			console.log(`${this.username} does not have enough balance to pay ${amount} dollars.`);
+		}
+	}
 	public async earn(amount: number): Promise<void> {
 		this.cash += amount;
 		await this.interaction.reply(`${this.username} earned $${amount}.`);
