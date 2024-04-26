@@ -1,4 +1,4 @@
-import { GuildTextBasedChannel, GuildMemberResolvable, GuildMember } from "discord.js";
+import { GuildTextBasedChannel, GuildMember } from "discord.js";
 export interface BoardSpace {
 	color?: string;
 	cost?: number;
@@ -14,7 +14,7 @@ export interface BoardSpace {
 export interface Property {
 	name: string;
 	owner: string | null;
-	mortgaged?: boolean;
+	mortgaged: boolean;
 	houses: number;
 	hotels: number;
 	// Add other property details as needed .. pretty sure i wont need to add something else..
