@@ -2,6 +2,8 @@ monopoly card title deed : 302 * 188
 in JSON board file , the group is the card own set , first number is the group number , second number is the card , third number is if you have the first 2 , you have the full set 
 they can only put houses on properties if they have full set 
 
+There is 27 properties that is ownable. 
+
 the code is along the line of : 
 hasFullPropertySet = function(space) {
 

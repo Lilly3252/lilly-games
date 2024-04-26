@@ -1,13 +1,29 @@
-import { BoardSpace, BoardData, Property } from "#utils/types/monopoly.js";
-import { ChatInputCommandInteraction, User } from "discord.js";
+import { BoardSpace, BoardData, Property, PropertyMap, BoardSpaceOrProperty, PlayerCreationData } from "#utils/types/monopoly.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import jsonData from "../JSON/board.json" with { type: "json" };
+
 export const propertiesData = Object.fromEntries(jsonData.map((item: BoardSpace) => [item.name, item])) as Record<string, BoardSpace>;
+
 export class Player {
+	constructor({ name, balance, guildMember, propertyMap, board }: PlayerCreationData) {
+		this.name = name;
+		this._position = 0;
+		this.balance = balance;
+		this.id = guildMember.id;
+		this.username = guildMember.displayName;
+		this.properties = propertyMap;
+		this.board = board;
+		this.isJailed = false;
+		this.ownsFreedomCommunity = false;
+		this.ownsFreedomChance = false;
+		this.hasLeftGame = false;
+	}
+
 	public name: string;
-	public properties: string[];
+	public properties: PropertyMap;
 	public balance: number;
 	public board: BoardData;
-	public _position: number;
+	public _position: number = 0;
 	public interaction: ChatInputCommandInteraction;
 	public username: string;
 	public id: string;
@@ -16,23 +32,8 @@ export class Player {
 	public ownsFreedomCommunity: boolean;
 	public ownsFreedomChance: boolean;
 	public hasLeftGame: boolean;
-	doublesCount: number;
-	rollsCount: number;
-
-	public constructor(name: string, user: User, board: BoardData) {
-		this.name = name;
-		this._position = 0;
-		this.balance = 1500;
-		this.id = user.id;
-		this.username = user.username;
-		this.properties = [];
-		this.board = board;
-		this.cash = 0;
-		this.isJailed = false;
-		this.ownsFreedomCommunity = false;
-		this.ownsFreedomChance = false;
-		this.hasLeftGame = false;
-	}
+	public doublesCount: number;
+	public rollsCount: number;
 
 	public get position() {
 		return this.board[this._position];
@@ -53,12 +54,24 @@ export class Player {
 	getOutOfJail(): void {
 		this.isJailed = false;
 	}
+	calculateRepairCost(houseCost: number, hotelCost: number) {
+		if (typeof this.properties !== "object" || this.properties === null) {
+			throw new Error("Invalid properties data");
+		}
 
+		const property = this.properties as unknown as Property;
+
+		const totalHouseCost = property.houses * houseCost;
+		const totalHotelCost = property.hotels * hotelCost;
+
+		const totalRepairCost = totalHouseCost + totalHotelCost;
+		return totalRepairCost;
+	}
 	public async move(number: number): Promise<void> {
 		const newPosition = (this._position + number) % this.board.length;
 
 		if (newPosition < this._position) {
-			await this.earn(200);
+			await this.receiveMoney(200);
 		}
 
 		this._position = newPosition;
@@ -82,49 +95,39 @@ export class Player {
 			console.log(`${this.username} does not have enough balance to pay ${amount} dollars.`);
 		}
 	}
-	public async earn(amount: number): Promise<void> {
-		this.cash += amount;
-		await this.interaction.reply(`${this.username} earned $${amount}.`);
-	}
-
 	public toggleMortgage(propertyToMortgage: string): void {
-		const propertyIndex = this.properties.findIndex((property) => property === propertyToMortgage);
+		const ownedProperty = this.properties[propertyToMortgage] as unknown as BoardSpaceOrProperty;
 
-		if (propertyIndex === -1) {
+		if (!ownedProperty) {
 			console.log(`${this.name} does not own the property ${propertyToMortgage}.`);
 			return;
 		}
 
-		const ownedProperty = this.properties[propertyIndex];
-
-		if (this.board[ownedProperty].mortgaged) {
+		if (ownedProperty.mortgaged) {
 			console.log(`${this.name} cannot mortgage ${propertyToMortgage} as it is already mortgaged.`);
 			return;
 		}
 
-		this.board[ownedProperty].mortgaged = true;
+		ownedProperty.mortgaged = true;
 		console.log(`${this.name} has mortgaged ${propertyToMortgage} successfully.`);
 	}
 
 	public toggleUnmortgage(propertyToUnmortgage: string): void {
-		const propertyIndex = this.properties.findIndex((property) => property === propertyToUnmortgage);
+		const ownedProperty = this.properties[propertyToUnmortgage] as unknown as BoardSpaceOrProperty;
 
-		if (propertyIndex === -1) {
+		if (!ownedProperty) {
 			console.log(`${this.name} does not own the property ${propertyToUnmortgage}.`);
 			return;
 		}
 
-		const ownedProperty = this.properties[propertyIndex];
-
-		if (!this.board[ownedProperty].mortgaged) {
+		if (!ownedProperty.mortgaged) {
 			console.log(`${this.name} cannot unmortgage ${propertyToUnmortgage} as it is not currently mortgaged.`);
 			return;
 		}
 
-		this.board[ownedProperty].mortgaged = false;
+		ownedProperty.mortgaged = false;
 		console.log(`${this.name} has unmortgaged ${propertyToUnmortgage} successfully.`);
 	}
-
 	public async jail(reason: string): Promise<void> {
 		this.isJailed = true;
 
@@ -162,15 +165,6 @@ export class Player {
 		if (reason === "card" && (this.ownsFreedomCommunity || this.ownsFreedomChance)) {
 			this.ownsFreedomCommunity = false;
 			this.ownsFreedomChance = false;
-		}
-	}
-
-	public async pay(amount: number): Promise<void> {
-		if (this.balance >= amount) {
-			this.balance -= amount;
-			await this.interaction.reply(`${this.username} paid ${amount} dollars.`);
-		} else {
-			await this.interaction.reply(`${this.username} does not have enough balance to pay ${amount} dollars.`);
 		}
 	}
 

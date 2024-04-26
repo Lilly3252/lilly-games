@@ -1,23 +1,22 @@
-import { PropertyMap, BoardData, DiceRollResult } from "#utils/types/monopoly.js";
-import { MessageCollector, TextChannel, CollectorFilter, Message } from "discord.js";
+import { PropertyMap, BoardData, DiceRollResult, MonopolyCreationData } from "#utils/types/monopoly.js";
+import { MessageCollector, CollectorFilter, Message } from "discord.js";
 import { Player } from "./player.js";
 import { ChanceCardHandler } from "./chance.js";
+import { CommunityCardHandler } from "./community.js";
 
 export class Monopoly {
-	public players: Player[];
-	public propertyMap: PropertyMap;
-	public board: BoardData;
-	public currentPlayerIndex: number;
+	public players: Player[] = [];
+	public currentPlayerIndex: number = 0;
 	public messageCollector: MessageCollector;
-	private chanceCardHandler: ChanceCardHandler;
+	private chanceCardHandler: ChanceCardHandler = new ChanceCardHandler();
+	private communityCardHandler: CommunityCardHandler = new CommunityCardHandler();
+	public board: BoardData;
+	public propertyMap: PropertyMap;
 
-	public constructor(board: BoardData, propertyMap: PropertyMap, textChannel: TextChannel) {
-		this.players = [];
-		this.currentPlayerIndex = 0;
-		this.propertyMap = propertyMap;
+	constructor({ board, propertyMap, textChannel }: MonopolyCreationData) {
 		this.board = board;
+		this.propertyMap = propertyMap;
 		this.messageCollector = textChannel.createMessageCollector({ filter: this.filterByCurrentPlayer });
-		this.chanceCardHandler = new ChanceCardHandler();
 	}
 
 	public filterByCurrentPlayer: CollectorFilter<[Message<true>]> = (message: Message<true>) => {
@@ -84,7 +83,7 @@ export class Monopoly {
 			console.log("You did not roll doubles on roll " + player.rollsCount + ". Pass the turn to the next player.");
 
 			if (player.rollsCount === 3) {
-				player.pay(50);
+				player.payMoney(50);
 				player.move(rollResult.sum);
 				console.log("You did not roll doubles after three attempts. Pay $50 and move " + rollResult.sum + " spaces.");
 			} else {
@@ -112,32 +111,69 @@ export class Monopoly {
 			console.log("You rolled a sum of " + rollResult.sum);
 		}
 	}
-
+	// TODO : HandleProperty is broken :( !!
 	public handleProperty(propertyName: string, propertyCost: number, propertyOwner: Player): void {
 		const currentPlayer = this.players[this.currentPlayerIndex];
-		const property = this.propertyMap[propertyName];
+		//Property 'properties' does not exist on type 'Player[]' ... RAHHHHH
+		const property = this.players.properties[propertyName];
 
 		if (propertyOwner && propertyOwner !== currentPlayer) {
+			//Property 'mortgaged' does not exist on type 'BoardSpace'. Did you mean 'mortgage'?   ... no bitch i didn't mean that ..
 			const rentAmount = propertyOwner.properties[propertyName].mortgaged ? property.mortgage : property.rent;
 			console.log(`${currentPlayer.name} pays rent of ${rentAmount} to ${propertyOwner.name}.`);
-			// Deduct rent amount from currentPlayer's money and add to propertyOwner's money
-			currentPlayer.cash -= rentAmount;
-			propertyOwner.cash += rentAmount;
+			currentPlayer.payMoney(rentAmount);
+			propertyOwner.receiveMoney(rentAmount);
 		}
 
 		if (currentPlayer.cash < propertyCost) {
 			console.log(`${currentPlayer.name} does not have enough money to buy ${propertyName}.`);
+			this.startAuction(propertyName, propertyCost);
 			return;
 		}
 
-		currentPlayer.cash -= propertyCost;
+		currentPlayer.payMoney(propertyCost);
+		// Type 'BoardSpace' has no call signatures. , NO SHIT SHERLOCK ..
 		currentPlayer.properties.push(propertyName);
 		console.log(`${currentPlayer.name} has bought ${propertyName} for ${propertyCost}.`);
 	}
-	public async handleChanceCard(): Promise<void> {
-		const chanceCard = this.chanceCardHandler.drawChanceCard();
-		//TODO
-		// Call functions in ChanceCardHandler to handle the chance card
+
+	private startAuction(propertyName: string, propertyCost: number): void {
+		const currentPlayer = this.players[this.currentPlayerIndex];
+
+		const auctionFilter: CollectorFilter<[Message<true>]> = (message: Message<true>) => {
+			return message.author.id === currentPlayer.id && /^bid [0-9]+$/.test(message.content.toLowerCase());
+		};
+
+		const auctionCollector = this.messageCollector.channel.createMessageCollector({ filter: auctionFilter });
+
+		let highestBidder: Player = currentPlayer;
+		let highestBid: number = propertyCost;
+
+		auctionCollector.on("collect", (message: Message<true>) => {
+			const bid = parseInt(message.content.toLowerCase().split(" ")[1]);
+			if (bid > highestBid) {
+				highestBidder = currentPlayer;
+				highestBid = bid;
+				console.log(`${highestBidder.name} has made a bid of $${highestBid}.`);
+			}
+		});
+
+		auctionCollector.on("end", () => {
+			if (highestBidder !== currentPlayer) {
+				currentPlayer.cash += highestBid;
+				currentPlayer.properties.push(propertyName);
+				console.log(`${highestBidder.name} has won the auction for ${propertyName} with a bid of $${highestBid}.`);
+			} else {
+				console.log("No one bid on the property. The property remains unsold.");
+			}
+		});
 	}
-	public handleCommunityCard() {}
+	public handleChanceCard(player: Player) {
+		const drawnCard = this.chanceCardHandler.drawChanceCard();
+		this.chanceCardHandler.handleChanceCard(player, drawnCard);
+	}
+	public handleCommunityCard(player: Player) {
+		const drawnCard = this.communityCardHandler.drawCommunityCard();
+		this.communityCardHandler.handleCommunityCard(player, drawnCard);
+	}
 }
