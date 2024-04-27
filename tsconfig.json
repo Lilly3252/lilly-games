@@ -5,16 +5,20 @@
 		"moduleResolution": "Node16",
 		"experimentalDecorators": true,
 		"resolveJsonModule": true,
-		"skipLibCheck": true,
+		
 		"rootDir": "src",
 		"outDir": "dist",
 		"baseUrl": "./",
 		"paths": {
-			"#utils/*": ["./src/utils/*"],
-			"#slashyInformations/*":["./src/slashyInformations/*"],
+			"#database/*": ["src/database/*"],
+			"#events/*": ["src/events/*"],
+			"#json/*": ["src/structures/JSONs/*"],
+			"#constants/*": ["src/structures/constants/*"],
 			"#type/*": ["src/structures/types/*"],
-			"#database/*":["./src/database/*"],
+			"#structures/*": ["src/structures/*"]
 		},
+		// Completeness
+		"skipLibCheck": true,
 		
 	},
 	"include": ["src"]

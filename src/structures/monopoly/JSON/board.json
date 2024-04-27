@@ -1,0 +1,608 @@
+[
+    {
+        "name": "Gateway",
+        "type": "go",
+        "corner": true
+    },
+    {
+        "name":"#General Road",
+        "type": "property",
+        "cost": 60,
+        "mortgage": 30,
+        "color": "#955438",
+        "rent": 2,
+        "multpliedrent": [
+            10,
+            30,
+            90,
+            160,
+            250
+        ],
+        "group": [ 
+            1,
+            1,
+            2
+        ],
+        "house": 50
+    },
+    {
+        "name":"Lootbox",
+        "type": "community-chest"
+    },
+    {
+        "name":"#Memes Road",
+        "type": "property",
+        "cost": 60,
+        "mortgage": 30,
+        "color": "#955438",
+        "rent": 4,
+        "multpliedrent": [
+            20,
+            60,
+            180,
+            320,
+            450
+        ],
+        "group": [
+            1,
+            2,
+            2
+        ],
+        "house": 50
+    },
+    {
+        "name": "Renewal Tax",
+        "type": "tax",
+        "cost": 200
+    },
+    {
+        "name":"Voice Chat Express",
+        "type": "railroad",
+        "cost": 200,
+        "mortgage": 100,
+        "rent":25,
+        "multpliedrent": [
+            50,
+            100,
+            200
+        ],
+        "group": [
+            9,
+            1,
+            4
+        ]
+    },
+    {
+        "name":"#Off-topic Avenue",
+        "type": "property",
+        "cost": 100,
+        "mortgage": 50,
+        "color": "#aae0fa",
+        "rent": 6,
+        "multpliedrent": [
+            30,
+            90,
+            270,
+            400,
+            550
+        ],
+        "group": [
+            2,
+            1,
+            3
+        ],
+        "house": 50
+    },
+    {
+        "name": "Trivia Time",
+        "type": "chance"
+    },
+    {
+        "name": "General Voice Ch.",
+        "type": "property",
+        "cost": 100,
+        "mortgage": 50,
+        "color": "#aae0fa",
+        "rent": 6,
+        "multpliedrent": [
+            30,
+            90,
+            270,
+            400,
+            550
+        ],
+        "group": [
+            2,
+            2,
+            3
+        ],
+        "house": 50
+    },
+    {
+        "name": "Gaming Voice Ch.",
+        "type": "property",
+        "cost": 120,
+        "mortgage": 60,
+        "color": "#aae0fa",
+        "rent": 8,
+        "multpliedrent": [
+            40,
+            100,
+            300,
+            450,
+            600
+        ],
+        "group": [
+            2,
+            3,
+            3
+        ],
+        "house": 50
+    },
+    {
+        "name": "Timeout",
+        "type": "jail",
+        "corner": true
+    },
+    {
+        "name":"Study Voice Ch.",
+        "type": "property",
+        "cost": 140,
+        "mortgage": 70,
+        "color": "#d93a96",
+        "rent": 10,
+        "multpliedrent": [
+            50,
+            150,
+            450,
+            625,
+            750
+        ],
+        "group": [
+            3,
+            1,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name":"Server Power",
+        "type": "utility",
+        "cost": 150,
+        "mortgage": 75,
+        "group": [
+            10,
+            1,
+            2
+        ]
+    },
+    {
+        "name": "#Announcements.",
+        "type": "property",
+        "cost": 140,
+        "mortgage": 70,
+        "color": "#d93a96",
+        "rent": 10,
+        "multpliedrent": [
+            50,
+            150,
+            450,
+            625,
+            750
+        ],
+        "group": [
+            3,
+            2,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name":  "#News Street",
+        "type": "property",
+        "cost": 160,
+        "mortgage": 80,
+        "color": "#d93a96",
+        "rent": 12,
+        "multpliedrent": [
+            60,
+            180,
+            500,
+            700,
+            900
+        ],
+        "group": [
+            3,
+            3,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name":"Gamer's Express",
+        "type": "railroad",
+        "cost": 200,
+        "mortgage": 100,
+        "rent":25,
+        "multpliedrent": [
+            50,
+            100,
+            200
+        ],
+        "group": [
+            9,
+            2,
+            4
+        ]
+    },
+    {
+        "name":"#Updates Street",
+        "type": "property",
+        "cost": 180,
+        "mortgage": 90,
+        "color": "#f7941d",
+        "rent": 14,
+        "multpliedrent": [
+            70,
+            200,
+            550,
+            750,
+            950
+        ],
+        "group": [
+            4,
+            1,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name":"Lootbox",
+        "type": "community-chest"
+    },
+    {
+        "name":"Level 1 Boost",
+        "type": "property",
+        "cost": 180,
+        "mortgage": 90,
+        "color": "#f7941d",
+        "rent": 14,
+        "multpliedrent": [
+            70,
+            200,
+            550,
+            750,
+            950
+        ],
+        "group": [
+            4,
+            2,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name":"Level 2 Boost",
+        "type": "property",
+        "cost": 200,
+        "mortgage": 100,
+        "color": "#f7941d",
+        "rent": 16,
+        "multpliedrent": [
+            80,
+            220,
+            600,
+            800,
+            1000
+        ],
+        "group": [
+            4,
+            3,
+            3
+        ],
+        "house": 100
+    },
+    {
+        "name": "AFK Alley",
+        "type": "free-parking",
+        "corner": true
+    },
+    {
+        "name": "Level 3 Boost",
+        "type": "property",
+        "cost": 220,
+        "mortgage": 110,
+        "color": "#ed1b24",
+        "rent": 18,
+        "multpliedrent": [
+            90,
+            250,
+            700,
+            875,
+            1050
+        ],
+        "group": [
+            5,
+            1,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name": "Trivia Time",
+        "type": "chance"
+    },
+    {
+        "name":"@Admins Avenue",
+        "type": "property",
+        "cost": 220,
+        "mortgage": 110,
+        "color": "#ed1b24",
+        "rent": 18,
+        "multpliedrent": [
+            90,
+            250,
+            700,
+            875,
+            1050
+        ],
+        "group": [
+            5,
+            2,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name":"@Moderators Avenue",
+        "type": "property",
+        "cost": 240,
+        "mortgage": 120,
+        "color": "#ed1b24",
+        "rent": 20,
+        "multpliedrent": [
+            100,
+            300,
+            750,
+            925,
+            1100
+        ],
+        "group": [
+            5,
+            3,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name":"Study Station",
+        "type": "railroad",
+        "cost": 200,
+        "mortgage": 100,
+        "rent":25,
+        "multpliedrent": [
+            50,
+            100,
+            200
+        ],
+        "group": [
+            9,
+            3,
+            4
+        ]
+    },
+    {
+        "name":"@Members Avenue",
+        "type": "property",
+        "cost": 260,
+        "mortgage": 130,
+        "color": "#fef200",
+        "rent": 22,
+        "multpliedrent": [
+            110,
+            330,
+            800,
+            975,
+            1150
+        ],
+        "group": [
+            6,
+            1,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name":"Gaming Avenue",
+        "type": "property",
+        "cost": 260,
+        "mortgage": 130,
+        "color": "#fef200",
+        "rent": 22,
+        "multpliedrent": [
+            110,
+            330,
+            800,
+            975,
+            1150
+        ],
+        "group": [
+            6,
+            2,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name":"Data Stream",
+        "type": "utility",
+        "cost": 150,
+        "mortgage": 75,
+        "group": [
+            10,
+            2,
+            2
+        ]
+    },
+    {
+        "name":"The Art Gardens",
+        "type": "property",
+        "cost": 280,
+        "mortgage": 140,
+        "color": "#fef200",
+        "rent": 24,
+        "multpliedrent": [
+            120,
+            360,
+            850,
+            1025,
+            1200
+        ],
+        "group": [
+            6,
+            3,
+            3
+        ],
+        "house": 150
+    },
+    {
+        "name": "Go To Mute Corner",
+        "type": "go-to-jail",
+        "corner": true
+    },
+    {
+        "name":"Music Avenue",
+        "type": "property",
+        "cost": 300,
+        "mortgage": 150,
+        "color": "#1fb25a",
+        "rent": 26,
+        "multpliedrent": [
+            130,
+            390,
+            900,
+            1100,
+            1275
+        ],
+        "group": [
+            7,
+            1,
+            3
+        ],
+        "house": 200
+    },
+    {
+        "name":"Doge Street",
+        "type": "property",
+        "cost": 300,
+        "mortgage": 150,
+        "color": "#1fb25a",
+        "rent": 26,
+        "multpliedrent": [
+            130,
+            390,
+            900,
+            1100,
+            1275
+        ],
+        "group": [
+            7,
+            2,
+            3
+        ],
+        "house": 200
+    },
+    {
+        "name":"Lootbox",
+        "type": "community-chest"
+    },
+    {
+        "name":"Rickroll Avenue",
+        "type": "property",
+        "cost": 320,
+        "mortgage": 160,
+        "color": "#1fb25a",
+        "rent": 28,
+        "multpliedrent": [
+            150,
+            450,
+            1000,
+            1200,
+            1400
+        ],
+        "group": [
+            7,
+            3,
+            3
+        ],
+        "house": 200
+    },
+    {
+        "name":"Music Express",
+        "type": "railroad",
+        "cost": 200,
+        "mortgage": 100,
+        "rent":25,
+        "multpliedrent": [
+            50,
+            100,
+            200
+        ],
+        "group": [
+            9,
+            4,
+            4
+        ]
+    },
+    {
+        "name":"Trivia Time",
+        "type": "chance"
+    },
+    {
+        "name":"Townhall",
+        "type": "property",
+        "cost": 350,
+        "mortgage": 175,
+        "color": "#0072bb",
+        "rent": 35,
+        "multpliedrent": [
+            175,
+            500,
+            1100,
+            1300,
+            1500
+        ],
+        "group": [
+            8,
+            1,
+            2
+        ],
+        "house": 200
+    },
+    {
+        "name": "Nitro Tax",
+        "type": "tax",
+        "cost": 100
+    },
+    {
+        "name": "Discord HQ",
+        "type": "property",
+        "cost": 400,
+        "mortgage": 200,
+        "color": "#0072bb",
+        "rent": 50,
+        "multpliedrent": [
+            200,
+            600,
+            1400,
+            1700,
+            2000
+        ],
+        "group": [
+            8,
+            2,
+            2
+        ],
+        "house": 200
+    }
+]
