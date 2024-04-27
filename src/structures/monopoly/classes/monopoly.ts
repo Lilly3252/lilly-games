@@ -192,7 +192,7 @@ export class Monopoly {
  */
 	public async handleProperty(propertyName: string, propertyCost: number, propertyOwner: Player): Promise<void> {
 		const currentPlayer = this.players[this.currentPlayerIndex];
-		const property = this.propertyMap[propertyName] as BoardSpace;
+		const property = this.propertyMap[propertyName]
 		const propertyWithName = (propertyOwner.properties).find((prop) => prop.name === propertyName)
 		const rentAmount = propertyWithName.mortgaged ? property.mortgage : property.rent;
 
