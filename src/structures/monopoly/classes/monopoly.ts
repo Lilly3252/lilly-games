@@ -1,8 +1,7 @@
-import { GameSession, Player, Property } from "#type/monopoly.js";
-import { GuildTextBasedChannel, Message, MessageCollector } from "discord.js";
+import { GameSession, MonopolyPlayerProperty, Player, Property } from "#type/monopoly.js";
+import { ChatInputCommandInteraction, GuildTextBasedChannel, Message, MessageCollector } from "discord.js";
 
 import { MakeDiceRoll } from "../functions/functions .js";
-import MonopolyProperty from "./boardProperties.js";
 import { ChanceCardHandler } from "./chance.js";
 import { CommunityCardHandler } from "./community.js";
 import MonopolyPlayer from "./player.js";
@@ -12,10 +11,11 @@ import MonopolyPlayer from "./player.js";
  * Represents a Monopoly game session.
  */
 export class Monopoly implements GameSession{
+    public properties: MonopolyPlayerProperty[];
     /**
      * The list of players in the game.
      */
-    public players: Player[];
+    public players: MonopolyPlayer[];
     /**
      * Index of the current player taking the turn.
      */
@@ -40,15 +40,11 @@ export class Monopoly implements GameSession{
      * The game board data.
      */
     public board: Property[];
-    /**
-     * A mapping of board spaces or properties.
-     */
-    public propertyMap: Property;
-
+   
     /**
      * Constructs a new instance of the Monopoly game.
      */
-    constructor(public properties: MonopolyProperty[]) {
+    constructor() {
         this.messageCollector = new MessageCollector(this.textChannel, { filter: this.filterByCurrentPlayer.bind(this) });
         this.players = [];
         
@@ -60,14 +56,14 @@ export class Monopoly implements GameSession{
      * @returns Returns true if the message author is the current player, false otherwise.
      */
     public filterByCurrentPlayer(message: Message): boolean {
-        return message.author.id === this.players[this.currentPlayerIndex].id;
+        return message.author.id === this.players[this.currentPlayerIndex].user.id;
     }
 
     /**
      * Adds a new player to the game.
      * @param player - The player object to be added to the game.
      */
-    public async addPlayer(player: Player): Promise<void> {
+    public async addPlayer(player: MonopolyPlayer): Promise<void> {
         this.players.push(player);
     }
 
@@ -82,7 +78,7 @@ export class Monopoly implements GameSession{
      * Retrieves the player object of the current player taking the turn.
      * @returns The player object of the current player.
      */
-    public get currentPlayer(): Player {
+    public get currentPlayer():MonopolyPlayer {
         return this.players[this.currentPlayerIndex];
     }
 
@@ -91,32 +87,32 @@ export class Monopoly implements GameSession{
      * @param propertyName - The name of the property to retrieve.
      * @returns An array of BoardSpace objects corresponding to the property name.
      */
-    getPropertyByName(name: string): MonopolyProperty | undefined {
-        return this.properties.find(property => property.name === name);
+    getPropertyByName(name: string): MonopolyPlayerProperty | undefined {
+        return this.properties.find(property => property.property.name === name);
     }
-    getPropertiesByType(type: string): MonopolyProperty[] {
-        return this.properties.filter(property => property.type === type);
+    getPropertiesByType(type: string): MonopolyPlayerProperty[] {
+        return this.properties.filter(property => property.property.type === type);
     }
     getTotalPropertyValue(): number {
-        return this.properties.reduce((total, property) => total + property.cost, 0);
+        return this.properties.reduce((total, property) => total + property.property.cost, 0);
     }
-    getPropertyWithHighestRent(): MonopolyProperty | undefined {
+    getPropertyWithHighestRent(): MonopolyPlayerProperty | undefined {
         return this.properties.reduce((maxRentProperty, property) =>
-            property.rent > maxRentProperty.rent ? property : maxRentProperty
+            property.property.rent > maxRentProperty.property.rent ? property : maxRentProperty
         );
     }
     getTotalRent(): number {
         return this.properties.reduce((total, property) => {
-            if (property.rent) {
-                return total + property.rent;
+            if (property.property.rent) {
+                return total + property.property.rent;
             } else {
                 return total;
             }
         }, 0);
     }
 
-    getPropertiesByGroup(groupNumber: number): Property[] {
-        return this.properties.filter(property => property.group.includes(groupNumber));
+    getPropertiesByGroup(groupNumber: number):  MonopolyPlayerProperty[] {
+        return this.properties.filter(property => property.property.group.includes(groupNumber));
     }
     /**
      * Starts the Monopoly game session, managing player turns until the game over condition is met.
@@ -144,10 +140,11 @@ export class Monopoly implements GameSession{
      * Manages player turns in the game by listening for player input events.
      */
     public async manageTurns(): Promise<void> {
+        let interaction:ChatInputCommandInteraction
         this.messageCollector.on("collect", async () => {
             const currentPlayer = this.currentPlayer;
 
-            MakeDiceRoll(currentPlayer);
+            MakeDiceRoll(interaction , currentPlayer);
 
             if (!currentPlayer.isJailed) {
                 this.updateCurrentPlayerIndex();

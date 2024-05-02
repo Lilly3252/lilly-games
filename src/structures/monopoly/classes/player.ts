@@ -1,90 +1,26 @@
-import { Player, Property } from "#type/monopoly.js";
-import { ChatInputCommandInteraction, User } from "discord.js";
+import { MonopolyPlayerProperty, Player, Property } from "#type/monopoly.js";
+import { User } from "discord.js";
 
 import jsonData from "../JSON/board.json";
 import MonopolyProperty from "./boardProperties";
 
-export const propertiesData = Object.fromEntries(jsonData.map((item: Property) => [item.name, item])) as Record<string, Property>;
+export const propertiesData = Object.fromEntries(jsonData.map((item: MonopolyProperty) => [item.name, item])) as Record<string, Property>;
 
 /**
  * Represents a player in the Monopoly game.
  */
 export default class MonopolyPlayer implements Player {
-	/**
-	 * The name of the player.
-	 */
-	public name: string;
-
-	/**
-	 * The balance of the player.
-	 */
-	public balance: number;
-
-	/**
-	 * The ID of the player.
-	 */
-	public id: string;
-
-	/**
-	 * The current position of the player on the game board.
-	 */
-	private _position: number;
-
-	/**
-	 * The number of consecutive doubles rolled by the player.
-	 */
-	public doublesCount: number;
-
-	/**
-	 * The total number of rolls made by the player.
-	 */
-	public rollsCount: number;
-
-	/**
-	 * Flag indicating if the player is currently in jail.
-	 */
-	private _isJailed: boolean = false;
-
-	/**
-	 * The properties owned by the player.
-	 */
-	public properties: MonopolyProperty[];
-
-	/**
-	 * The interaction object for handling player commands in Discord.
-	 */
-	public interaction: ChatInputCommandInteraction;
-
-	/**
-	 * The username associated with the player.
-	 */
-	public username: string;
-
-	/**
-	 * Flag indicating if the player owns a Freedom Community Chest Card.
-	 */
-	public ownsFreedomCommunity: boolean;
-
-	/**
-	 * Flag indicating if the player owns a Freedom Chance Card.
-	 */
-	public ownsFreedomChance: boolean;
-
-	/**
-	 * Flag indicating if the player has left the game.
-	 */
-	public hasLeftGame: boolean = false;
+	user: User;
+    balance: number;
+    properties: MonopolyPlayerProperty[] = [];
+    hasLeftGame: boolean = false;
+    private _isJailed: boolean = false;
+    doublesCount: number = 0;
+    rollsCount: number = 0;
+	private _position:number = 0
 	board: typeof jsonData;
+	ownsFreedomChance: boolean;
 
-	/**
-	 * Constructor for creating a new player object.
-	 * @param {string} name The name of the player.
-	 */
-	constructor({ name, balance, guildMember }: { name: string; balance: number; guildMember: User; }) {
-		this.name = name;
-		this.balance = balance;
-		this.id = guildMember.id;
-	}
 	/**
 	 * Increment the doubles count for the player when doubles are rolled.
 	 */
@@ -93,18 +29,25 @@ export default class MonopolyPlayer implements Player {
 	}
 
 	public addProperty(property: MonopolyProperty): void {
-        this.properties.push(property);
+		/*
+		const monopolyboard = JSON.parse(readFileSync("./structures/monopoly/JSON/board.json", 'utf8'))
+		const index = this.playerPosition
+		const selectedProperty = monopolyboard[index];
+		const data = {
+			owner: this.user.username,
+			property: selectedProperty  
+		}*/
     }
 
     public removeProperty(property: MonopolyProperty): void {
-        const index = this.properties.findIndex(p => p.name === property.name);
+        /*const index = this.properties.findIndex(p => p.property.name === property.name);
         if (index !== -1) {
             this.properties.splice(index, 1);
-        }
+        }*/
     }
 
     getTotalPropertyValue(): number {
-        return this.properties.reduce((total, property) => total + property.cost, 0);
+        return this.properties.reduce((total, property) => total + property.property.cost, 0);
     }
 	/**
 	 * Reset the doubles count for the player to zero.
@@ -130,11 +73,19 @@ export default class MonopolyPlayer implements Player {
 	public calculateRepairCost(house: number, hotel: number): number {
 			let totalRepairCost = 0;
 			for (const property of this.properties) {
-				 house = property.getHouse()
-				 hotel = property.getHotel()
+				 house = property.house
+				 hotel = property.hotel
 				totalRepairCost += house + hotel
 			}
 			return totalRepairCost;
+		}
+
+		public addHotel(property:MonopolyPlayerProperty){
+			
+		}
+		public addHouse(property:MonopolyPlayerProperty){
+			
+
 		}
 	/**
 	 * Move the player by a specified number of board spaces and handle passing Go.
@@ -181,7 +132,7 @@ export default class MonopolyPlayer implements Player {
     }
 
 	getIndexOfProperty(property: MonopolyProperty): number {
-        return this.properties.findIndex(p => p === property);
+        return this.properties.findIndex(p => p.property === property);
     }
 	/**
 	 * Deduct the specified amount from the player's balance if they have enough balance, otherwise log a message indicating insufficient funds.
@@ -200,7 +151,7 @@ export default class MonopolyPlayer implements Player {
 		const ownedPropertyIndex = this.getIndexOfProperty(propertyToMortgage)
 		if (ownedPropertyIndex !== -1) {
 			const ownedProperty = this.properties[ownedPropertyIndex];
-			if (propertyToMortgage.isOwned(this) && propertyToMortgage.isMortgaged){
+			if (propertyToMortgage.isOwned(this,ownedProperty) && propertyToMortgage.isMortgaged){
 				console.log("This property is already mortgaged")
 				return
 			}else{
@@ -224,7 +175,7 @@ export default class MonopolyPlayer implements Player {
             console.log("This property is not mortgaged");
             return;
         } else {
-            const unmortgageCost = ownedProperty.cost;
+            const unmortgageCost = ownedProperty.property.cost;
             
             if (this.balance >= unmortgageCost) {
                 this.balance -= unmortgageCost;

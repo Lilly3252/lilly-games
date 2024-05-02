@@ -1,0 +1,24 @@
+{
+  "Owner": "test",
+  "property": {
+    "name": "Townhall",
+    "type": "property",
+    "cost": 350,
+    "mortgage": 175,
+    "color": "#0072bb",
+    "rent": 35,
+    "multpliedrent": [
+      175,
+      500,
+      1100,
+      1300,
+      1500
+    ],
+    "group": [
+      8,
+      1,
+      2
+    ],
+    "house": 200
+  }
+}

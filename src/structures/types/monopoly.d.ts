@@ -1,7 +1,10 @@
+import MonopolyProperty from "#structures/monopoly/classes/boardProperties";
+import { User } from "discord.js";
+
 /**
  * Interface representing the properties of a space on the Monopoly board.
  */
-export interface Property {
+export interface Property extends MonopolyProperty{
     color?: string;
     cost?: number;
     group?: number[];
@@ -11,45 +14,52 @@ export interface Property {
     name: string;
     rent?: number;
     type: string;
+    isOwned(player: MonopolyPlayer ,property:MonopolyPlayerProperty):boolean
 }
 
-
+interface MonopolyPlayerProperty extends Property {
+    property: Property,
+    owner:User,
+    house: number = 0
+    hotel: number = 0
+    isMortgaged: boolean = false
+}
 
 export interface GameSession {
-    public properties: Property[];
+    public properties: MonopolyPlayerProperty[];
 
-    getPropertyByName(name: string): Property | undefined;
-    getPropertiesByType(type: string): Property[];
+    getPropertyByName(name: string): MonopolyPlayerProperty | undefined;
+    getPropertiesByType(type: string):  MonopolyPlayerProperty[];
     getTotalPropertyValue(): number;
     getTotalRent(): number;
-    getPropertiesByGroup(groupNumber: number): Property[];
-    getPropertyWithHighestRent(): Property | undefined;
+    getPropertiesByGroup(groupNumber: number):  MonopolyPlayerProperty[];
+    getPropertyWithHighestRent():  MonopolyPlayerProperty | undefined;
 }
 interface Player {
-    name: string;
-    id:string
+    user:User
     balance: number;
-    properties: Property[];
-    hasLeftGame:boolean = false
-    isJailed:boolean = false
-    doublesCount:number
-    rollsCount:number
-    isInJail:boolean
+    ownsFreedomChance:boolean = false
+    properties: MonopolyPlayerProperty[];
+    hasLeftGame: boolean = false
+    isJailed: boolean = false
+    doublesCount: number
+    rollsCount: number
+    isInJail: boolean
     move({ number }: { number: number; }): void
     payMoney({ amount }: { amount: number; }): void
-    toggleMortgage(propertyToMortgage: MonopolyProperty): Promise<void>
-    toggleUnmortgage(propertyToUnmortgage: MonopolyProperty): Promise<void>
-    getIndexOfProperty(property: MonopolyProperty): number
+    toggleMortgage(propertyToMortgage: Property): Promise<void>
+    toggleUnmortgage(propertyToUnmortgage: Property): Promise<void>
+    getIndexOfProperty(property: Property): number
     addProperty(property: Property): void;
     removeProperty(property: Property): void;
     getTotalPropertyValue(): number;
     calculateRepairCost(house: number, hotel: number): number;
     incrementDoublesCount(): void
     resetDoublesCount(): void
-    incrementRollsCount(): void 
+    incrementRollsCount(): void
     receiveMoney({ amount }: { amount: number; }): void
-    setPlayerPosition(value: number):void
-    isPropertyMortgaged(property: MonopolyProperty): boolean;
+    setPlayerPosition(value: number): void
+    isPropertyMortgaged(property: Property): boolean;
 }
 
 /**
@@ -86,16 +96,12 @@ export interface CommunityCard {
 export interface PlayerCreationData {
     name: string;
     balance: number;
-    guildMember: GuildMember;
-    propertyMap: PropertyMap;
-    board: BoardData;
+    user: User;   
 }
 
 /**
  * Interface representing the data needed to create a Monopoly game instance.
  */
 export interface MonopolyCreationData {
-    board: BoardData;
-    propertyMap: PropertyMap;
     textChannel: GuildTextBasedChannel;
 }

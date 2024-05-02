@@ -94,7 +94,7 @@ export class CommunityCardHandler {
 	 * Handle the effect of a "get out of jail free" card on the player.
 	 * @param player The player who receives the card.
 	 */
-	public handleJailCard(player: Player) {
+	public handleJailCard(player: MonopolyPlayer) {
 		player.ownsFreedomChance = true;
 	}
 

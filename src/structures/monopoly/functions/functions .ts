@@ -1,8 +1,11 @@
-import { DiceRollResult, Player } from "#type/index";
-import { CollectorFilter, Message } from "discord.js";
+import jsonData from "#structures/monopoly/JSON/board.json";
+import { DiceRollResult, MonopolyPlayerProperty } from "#type/index";
+import { ChatInputCommandInteraction, CollectorFilter, Message } from "discord.js";
 import MonopolyProperty from "../classes/boardProperties";
 import { Monopoly } from "../classes/monopoly";
 import MonopolyPlayer from "../classes/player";
+
+const data = jsonData
 
 
 /**
@@ -28,58 +31,58 @@ export function throwDice(): DiceRollResult {
  * @param propertyOwner - The player who owns the property.
  * @returns A promise that resolves once the property handling is completed.
  */
-	export function handleProperty(game:Monopoly,property: MonopolyProperty, propertyOwner: MonopolyPlayer): Promise<void> {
+	export async function handleProperty(interaction:ChatInputCommandInteraction,game:Monopoly,property: MonopolyProperty, propertyOwner: MonopolyPlayer): Promise<void> {
 		const currentPlayer = game.currentPlayer
 		const properties = game.getPropertyByName(property.name);
 		const propertyCost = property.getCost()
 		const rentAmount = properties.isMortgaged ? property.mortgage : property.rent;
 
-		console.log(`${currentPlayer.name} pays rent of ${rentAmount} to ${propertyOwner.name}.`);
+		console.log(`${currentPlayer.user.username} pays rent of ${rentAmount} to ${propertyOwner.user.username}.`);
 		currentPlayer.payMoney({ amount: rentAmount });
 		propertyOwner.receiveMoney( {amount: rentAmount });
 
 		if (currentPlayer.balance < propertyCost) {
-			console.log(`${currentPlayer.name} does not have enough money to buy ${properties}.`);
+			await interaction.editReply(`${currentPlayer.user.username} does not have enough money to buy ${properties}.`);
 			this.startAuction(properties, propertyCost);
 			return;
 		}
 
 		currentPlayer.payMoney({ amount: propertyCost });
-		console.log(`${currentPlayer.name} has bought ${properties} for ${propertyCost}.`);
+		await interaction.editReply(`${currentPlayer.user.username} has bought ${properties} for ${propertyCost}.`);
 	}
     /**
  * Initiates an auction for a property among the players.
  * @param propertyName - The name of the property being auctioned.
  * @param propertyCost - The cost of the property being auctioned.
  */
-	export function startAuction(property: MonopolyProperty): void {
+	export function startAuction(interaction:ChatInputCommandInteraction,property: MonopolyPlayerProperty): void {
 		const currentPlayer = Monopoly.prototype.currentPlayer
 		const properties = Monopoly.prototype.getPropertyByName(property.name)
 		const auctionFilter: CollectorFilter<[Message<true>]> = (message: Message<true>) => {
-			return message.author.id === currentPlayer.id && /^bid [0-9]+$/.test(message.content.toLowerCase());
+			return message.author.id === currentPlayer.user.id && /^bid [0-9]+$/.test(message.content.toLowerCase());
 		};
 
 		const auctionCollector = this.messageCollector.channel.createMessageCollector({ filter: auctionFilter });
 		let highestBidder = currentPlayer;
-		let highestBid = property.getCost();
+		let highestBid = property.property.getCost();
 
-		auctionCollector.on("collect", (message: Message<true>) => {
+		auctionCollector.on("collect", async (message: Message<true>) => {
 			const bid = parseInt(message.content.toLowerCase().split(" ")[1]);
 			if (bid > highestBid) {
 				highestBidder = currentPlayer;
 				highestBid = bid;
-				console.log(`${highestBidder.name} has made a bid of $${highestBid}.`);
+				await interaction.editReply(`${highestBidder.user.username} has made a bid of $${highestBid}.`);
 			}
 		});
 
-		auctionCollector.on("end", () => {
+		auctionCollector.on("end", async () => {
 			if (highestBidder !== currentPlayer) {
 				currentPlayer.balance += highestBid;
 
 				currentPlayer.properties.push(property);
-				console.log(`${highestBidder.name} has won the auction for ${property} with a bid of $${highestBid}.`);
+				await interaction.editReply(`${highestBidder.user.username} has won the auction for ${property} with a bid of $${highestBid}.`);
 			} else {
-				console.log("No one bid on the property. The property remains unsold.");
+				await interaction.editReply("No one bid on the property. The property remains unsold.");
 			}
 		});
 	}
@@ -89,21 +92,21 @@ export function throwDice(): DiceRollResult {
  * @param player - The player for whom the standard roll logic is being handled.
  * @param rollResult - The result of the dice roll for the player.
  */
-	export function standardRollLogic(player: Player, rollResult: DiceRollResult): void {
+	export async function standardRollLogic(interaction:ChatInputCommandInteraction,player: MonopolyPlayer, rollResult: DiceRollResult): Promise<void> {
 		if (rollResult.double) {
 			player.incrementDoublesCount();
 
 			if (player.doublesCount === 3) {
 				goToJail(player);
-				console.log("You rolled three doubles in a row! Go to jail.");
+				await interaction.editReply("You rolled three doubles in a row! Go to jail.");
 			} else {
 				player.move({ number: rollResult.sum });
-				console.log("You rolled a double! Advance to the corresponding index on the board and roll again.");
+				await interaction.editReply("You rolled a double! Advance to the corresponding index on the board and roll again.");
 			}
 		} else {
 			player.resetDoublesCount();
 			player.move({ number: rollResult.sum });
-			console.log("You rolled a sum of " + rollResult.sum);
+			await interaction.editReply("You rolled a sum of " + rollResult.sum);
 		}
 	}
    /**
@@ -111,21 +114,21 @@ export function throwDice(): DiceRollResult {
  * @param player - The player in jail for whom the logic is being handled.
  * @param rollResult - The result of the dice roll for the player.
  */
-	export function handleJailLogic(player: Player, rollResult: DiceRollResult): void {
+	export async function handleJailLogic(interaction:ChatInputCommandInteraction ,player: MonopolyPlayer, rollResult: DiceRollResult): Promise<void> {
 		player.incrementRollsCount();
 
 		if (rollResult.double) {
 			player.isJailed = false;
-			console.log("You rolled doubles! Get out of jail for free.");
+			await interaction.editReply("You rolled doubles! Get out of jail for free.");
 		} else {
-			console.log("You did not roll doubles on roll " + player.rollsCount + ". Pass the turn to the next player.");
+			await interaction.editReply("You did not roll doubles on roll " + player.rollsCount + ". Pass the turn to the next player.");
 
 			if (player.rollsCount === 3) {
 				player.payMoney({ amount: 50 });
 				player.move({ number: rollResult.sum });
-				console.log("You did not roll doubles after three attempts. Pay $50 and move " + rollResult.sum + " spaces.");
+				await interaction.editReply("You did not roll doubles after three attempts. Pay $50 and move " + rollResult.sum + " spaces.");
 			} else {
-				console.log("Roll again on your next turn.");
+				await interaction.editReply("Roll again on your next turn.");
 			}
 
 			Monopoly.prototype.updateCurrentPlayerIndex()
@@ -135,13 +138,13 @@ export function throwDice(): DiceRollResult {
  * Makes a dice roll for the specified player in the Monopoly game.
  * @param player - The player for whom the dice roll is being made.
  */
-	export function MakeDiceRoll(player: Player): void {
+	export async function MakeDiceRoll(interaction:ChatInputCommandInteraction,player: MonopolyPlayer): Promise<void> {
 		const rollResult: DiceRollResult = throwDice();
 
 		if (player.isInJail) {
-			handleJailLogic(player, rollResult);
+			handleJailLogic(interaction, player, rollResult);
 		} else {
-			standardRollLogic(player, rollResult);
+			await standardRollLogic(interaction,player, rollResult);
 		}
 	}
     /**
@@ -149,7 +152,7 @@ export function throwDice(): DiceRollResult {
  * @param player - The player sent to jail.
  * @param reason The reason for being jailed.
  */
-	export function goToJail(player:Player , reason?:string) {
+	export function goToJail(player:MonopolyPlayer , reason?:string) {
 		player.resetDoublesCount();
 		player.isJailed = true;
 		player.setPlayerPosition(10);
@@ -159,14 +162,14 @@ export function throwDice(): DiceRollResult {
  * Sets the player's jail status to false, indicating they are no longer in jail.
  * @param player - The player getting out of jail.
  */
-	export function getOutOfJail(player:Player , reason?:string) {
+	export function getOutOfJail(player:MonopolyPlayer , reason?:string) {
         if (player.isInJail){
 		player.isJailed = false;
 	}
 
 }
 
-export function releaseProperty(player: MonopolyPlayer, property: MonopolyProperty): void {
+export async function releaseProperty(interaction:ChatInputCommandInteraction,player: MonopolyPlayer, property: MonopolyProperty): Promise<void> {
     const index = player.getIndexOfProperty(property);
     if (index !== -1) {
         if (property.isMortgaged) {
@@ -176,8 +179,8 @@ export function releaseProperty(player: MonopolyPlayer, property: MonopolyProper
         }
         
         player.properties.splice(index, 1);
-        console.log(`${property.name} has been released.`);
+        await interaction.editReply(`${property.name} has been released.`);
     } else {
-        console.log(`${property.name} is not owned by ${player.name}.`);
+        await interaction.editReply(`${property.name} is not owned by ${player.user.username}.`);
     }
 }
