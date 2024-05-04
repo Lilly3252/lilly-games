@@ -55,7 +55,7 @@ export class CommunityCardHandler {
 				await this.handleSpendEachPlayer(this.players, Number(card.amount));
 				break;
 			case "repairs":
-				await this.handleRepairs(player, card.amount[0], card.amount[1]);
+				//await this.handleRepairs(player, card.amount[0], card.amount[1]);
 				break;
 			// Add additional cases for other types of community cards as needed
 			default:
@@ -95,7 +95,7 @@ export class CommunityCardHandler {
 	 * @param player The player who receives the card.
 	 */
 	public handleJailCard(player: MonopolyPlayer) {
-		player.ownsFreedomChance = true;
+		player.setOwnsFreedomChance(true)
 	}
 
 	/**
@@ -138,7 +138,7 @@ export class CommunityCardHandler {
 		const hotelCost = hotel[1];
 
 		// Calculate total repair cost based on player's properties
-		player.calculateRepairCost(houseCost,hotelCost);
+		//player.calculateRepairCost(houseCost,hotelCost);
 	}
 
 	// Implement handleAdvance, handleEarn, handleSpend, handleJailCard, handleJail, handleRepairs and any other required functions based on the JSON data

@@ -144,6 +144,7 @@ export class Monopoly implements GameSession{
         this.messageCollector.on("collect", async () => {
             const currentPlayer = this.currentPlayer;
 
+
             MakeDiceRoll(interaction , currentPlayer);
 
             if (!currentPlayer.isJailed) {
@@ -151,7 +152,7 @@ export class Monopoly implements GameSession{
             }
         });
     }
-
+    
     /**
      * Handles a chance card for a specified player, drawing and executing the card effect.
      * @param player - The player receiving the chance card.

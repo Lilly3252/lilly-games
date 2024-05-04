@@ -4,7 +4,7 @@ import { User } from "discord.js";
 /**
  * Interface representing the properties of a space on the Monopoly board.
  */
-export interface Property extends MonopolyProperty{
+export interface Property extends MonopolyProperty {
     color?: string;
     cost?: number;
     group?: number[];
@@ -35,31 +35,23 @@ export interface GameSession {
     getPropertiesByGroup(groupNumber: number):  MonopolyPlayerProperty[];
     getPropertyWithHighestRent():  MonopolyPlayerProperty | undefined;
 }
-interface Player {
+export interface Players {
     user:User
-    balance: number;
-    ownsFreedomChance:boolean = false
-    properties: MonopolyPlayerProperty[];
-    hasLeftGame: boolean = false
-    isJailed: boolean = false
-    doublesCount: number
-    rollsCount: number
-    isInJail: boolean
+    setOwnsFreedomChance(value:boolean):Promise<boolean>
+    isInJail(): Promise<boolean>
+    isJailed(value:boolean):Promise<void>
     move({ number }: { number: number; }): void
     payMoney({ amount }: { amount: number; }): void
-    toggleMortgage(propertyToMortgage: Property): Promise<void>
-    toggleUnmortgage(propertyToUnmortgage: Property): Promise<void>
-    getIndexOfProperty(property: Property): number
-    addProperty(property: Property): void;
-    removeProperty(property: Property): void;
-    getTotalPropertyValue(): number;
-    calculateRepairCost(house: number, hotel: number): number;
-    incrementDoublesCount(): void
+    toggleMortgage(propertyToMortgage: string): Promise<void>
+    toggleUnmortgage(propertyToMortgage: string): Promise<void>
+    addProperty(): Promise<void>;
+    removeProperty(property: string): void;
+    incrementDoublesCount(): Promise<void>
     resetDoublesCount(): void
     incrementRollsCount(): void
     receiveMoney({ amount }: { amount: number; }): void
     setPlayerPosition(value: number): void
-    isPropertyMortgaged(property: Property): boolean;
+    isPropertyMortgaged(property: string):Promise<boolean>;
 }
 
 /**
@@ -92,6 +84,8 @@ export interface CommunityCard {
 
 /**
  * Interface representing the data needed to create a player in the Monopoly game.
+ * 
+ * not used atm iirc
  */
 export interface PlayerCreationData {
     name: string;
@@ -101,6 +95,8 @@ export interface PlayerCreationData {
 
 /**
  * Interface representing the data needed to create a Monopoly game instance.
+ *  * 
+ * not used atm iirc
  */
 export interface MonopolyCreationData {
     textChannel: GuildTextBasedChannel;
