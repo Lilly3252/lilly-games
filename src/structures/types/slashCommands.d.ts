@@ -1,4 +1,3 @@
-import { Monopoly } from '#structures/monopoly/classes/monopoly';
 import type { AutocompleteInteraction, CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 export interface SlashCommand {
@@ -11,5 +10,5 @@ export interface SlashCommand {
 	 * @param {CommandInteraction} interaction  The CommandInteraction object from the interactionCreate event or collector
 	 */
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	run(monopoly?: Monopoly ,interaction: CommandInteraction | AutocompleteInteraction): Promise<any>;
+	run(game: MonopolyGame,interaction: CommandInteraction | AutocompleteInteraction): Promise<any>;
 }

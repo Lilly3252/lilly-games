@@ -2,10 +2,11 @@
     {
         "name": "Gateway",
         "type": "go",
-        "corner": true
+        "corner": true,
+        "position": 0
     },
     {
-        "name":"#General Road",
+        "name": "#General Road",
         "type": "property",
         "cost": 60,
         "mortgage": 30,
@@ -23,14 +24,16 @@
             1,
             2
         ],
-        "house": 50
+        "house": 50,
+        "position": 1
     },
     {
-        "name":"Lootbox",
-        "type": "community-chest"
+        "name": "Lootbox",
+        "type": "community-chest",
+        "position": 2
     },
     {
-        "name":"#Memes Road",
+        "name": "#Memes Road",
         "type": "property",
         "cost": 60,
         "mortgage": 30,
@@ -48,19 +51,21 @@
             2,
             2
         ],
-        "house": 50
+        "house": 50,
+        "position": 3
     },
     {
         "name": "Renewal Tax",
         "type": "tax",
-        "cost": 200
+        "cost": 200,
+        "position": 4
     },
     {
-        "name":"Voice Chat Express",
+        "name": "Voice Chat Express",
         "type": "railroad",
         "cost": 200,
         "mortgage": 100,
-        "rent":25,
+        "rent": 25,
         "multpliedrent": [
             50,
             100,
@@ -70,10 +75,11 @@
             9,
             1,
             4
-        ]
+        ],
+        "position": 5
     },
     {
-        "name":"#Off-topic Avenue",
+        "name": "#Off-topic Avenue",
         "type": "property",
         "cost": 100,
         "mortgage": 50,
@@ -91,11 +97,13 @@
             1,
             3
         ],
-        "house": 50
+        "house": 50,
+        "position": 6
     },
     {
         "name": "Trivia Time",
-        "type": "chance"
+        "type": "chance",
+        "position": 7
     },
     {
         "name": "General Voice Ch.",
@@ -116,7 +124,8 @@
             2,
             3
         ],
-        "house": 50
+        "house": 50,
+        "position": 8
     },
     {
         "name": "Gaming Voice Ch.",
@@ -137,15 +146,17 @@
             3,
             3
         ],
-        "house": 50
+        "house": 50,
+        "position": 9
     },
     {
         "name": "Timeout",
         "type": "jail",
-        "corner": true
+        "corner": true,
+        "position": 10
     },
     {
-        "name":"Study Voice Ch.",
+        "name": "Study Voice Ch.",
         "type": "property",
         "cost": 140,
         "mortgage": 70,
@@ -163,10 +174,11 @@
             1,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 11
     },
     {
-        "name":"Server Power",
+        "name": "Server Power",
         "type": "utility",
         "cost": 150,
         "mortgage": 75,
@@ -174,7 +186,8 @@
             10,
             1,
             2
-        ]
+        ],
+        "position": 12
     },
     {
         "name": "#Announcements.",
@@ -195,10 +208,11 @@
             2,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 13
     },
     {
-        "name":  "#News Street",
+        "name": "#News Street",
         "type": "property",
         "cost": 160,
         "mortgage": 80,
@@ -216,14 +230,15 @@
             3,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 14
     },
     {
-        "name":"Gamer's Express",
+        "name": "Gamer's Express",
         "type": "railroad",
         "cost": 200,
         "mortgage": 100,
-        "rent":25,
+        "rent": 25,
         "multpliedrent": [
             50,
             100,
@@ -233,10 +248,11 @@
             9,
             2,
             4
-        ]
+        ],
+        "position": 15
     },
     {
-        "name":"#Updates Street",
+        "name": "#Updates Street",
         "type": "property",
         "cost": 180,
         "mortgage": 90,
@@ -254,14 +270,16 @@
             1,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 16
     },
     {
-        "name":"Lootbox",
-        "type": "community-chest"
+        "name": "Lootbox",
+        "type": "community-chest",
+        "position": 17
     },
     {
-        "name":"Level 1 Boost",
+        "name": "Level 1 Boost",
         "type": "property",
         "cost": 180,
         "mortgage": 90,
@@ -279,10 +297,11 @@
             2,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 18
     },
     {
-        "name":"Level 2 Boost",
+        "name": "Level 2 Boost",
         "type": "property",
         "cost": 200,
         "mortgage": 100,
@@ -300,12 +319,14 @@
             3,
             3
         ],
-        "house": 100
+        "house": 100,
+        "position": 19
     },
     {
         "name": "AFK Alley",
         "type": "free-parking",
-        "corner": true
+        "corner": true,
+        "position": 20
     },
     {
         "name": "Level 3 Boost",
@@ -326,14 +347,16 @@
             1,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 21
     },
     {
         "name": "Trivia Time",
-        "type": "chance"
+        "type": "chance",
+        "position": 22
     },
     {
-        "name":"@Admins Avenue",
+        "name": "@Admins Avenue",
         "type": "property",
         "cost": 220,
         "mortgage": 110,
@@ -351,10 +374,11 @@
             2,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 23
     },
     {
-        "name":"@Moderators Avenue",
+        "name": "@Moderators Avenue",
         "type": "property",
         "cost": 240,
         "mortgage": 120,
@@ -372,14 +396,15 @@
             3,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 24
     },
     {
-        "name":"Study Station",
+        "name": "Study Station",
         "type": "railroad",
         "cost": 200,
         "mortgage": 100,
-        "rent":25,
+        "rent": 25,
         "multpliedrent": [
             50,
             100,
@@ -389,10 +414,11 @@
             9,
             3,
             4
-        ]
+        ],
+        "position": 25
     },
     {
-        "name":"@Members Avenue",
+        "name": "@Members Avenue",
         "type": "property",
         "cost": 260,
         "mortgage": 130,
@@ -410,10 +436,11 @@
             1,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 26
     },
     {
-        "name":"Gaming Avenue",
+        "name": "Gaming Avenue",
         "type": "property",
         "cost": 260,
         "mortgage": 130,
@@ -431,10 +458,11 @@
             2,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 27
     },
     {
-        "name":"Data Stream",
+        "name": "Data Stream",
         "type": "utility",
         "cost": 150,
         "mortgage": 75,
@@ -442,10 +470,11 @@
             10,
             2,
             2
-        ]
+        ],
+        "position": 28
     },
     {
-        "name":"The Art Gardens",
+        "name": "The Art Gardens",
         "type": "property",
         "cost": 280,
         "mortgage": 140,
@@ -463,15 +492,17 @@
             3,
             3
         ],
-        "house": 150
+        "house": 150,
+        "position": 29
     },
     {
         "name": "Go To Mute Corner",
         "type": "go-to-jail",
-        "corner": true
+        "corner": true,
+        "position": 30
     },
     {
-        "name":"Music Avenue",
+        "name": "Music Avenue",
         "type": "property",
         "cost": 300,
         "mortgage": 150,
@@ -489,10 +520,11 @@
             1,
             3
         ],
-        "house": 200
+        "house": 200,
+        "position": 31
     },
     {
-        "name":"Doge Street",
+        "name": "Doge Street",
         "type": "property",
         "cost": 300,
         "mortgage": 150,
@@ -510,14 +542,16 @@
             2,
             3
         ],
-        "house": 200
+        "house": 200,
+        "position": 32
     },
     {
-        "name":"Lootbox",
-        "type": "community-chest"
+        "name": "Lootbox",
+        "type": "community-chest",
+        "position": 33
     },
     {
-        "name":"Rickroll Avenue",
+        "name": "Rickroll Avenue",
         "type": "property",
         "cost": 320,
         "mortgage": 160,
@@ -535,14 +569,15 @@
             3,
             3
         ],
-        "house": 200
+        "house": 200,
+        "position": 34
     },
     {
-        "name":"Music Express",
+        "name": "Music Express",
         "type": "railroad",
         "cost": 200,
         "mortgage": 100,
-        "rent":25,
+        "rent": 25,
         "multpliedrent": [
             50,
             100,
@@ -552,14 +587,16 @@
             9,
             4,
             4
-        ]
+        ],
+        "position": 35
     },
     {
-        "name":"Trivia Time",
-        "type": "chance"
+        "name": "Trivia Time",
+        "type": "chance",
+        "position": 36
     },
     {
-        "name":"Townhall",
+        "name": "Townhall",
         "type": "property",
         "cost": 350,
         "mortgage": 175,
@@ -577,12 +614,14 @@
             1,
             2
         ],
-        "house": 200
+        "house": 200,
+        "position": 37
     },
     {
         "name": "Nitro Tax",
         "type": "tax",
-        "cost": 100
+        "cost": 100,
+        "position": 38
     },
     {
         "name": "Discord HQ",
@@ -603,6 +642,7 @@
             2,
             2
         ],
-        "house": 200
+        "house": 200,
+        "position": 39
     }
 ]
