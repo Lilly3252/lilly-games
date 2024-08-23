@@ -1,6 +1,10 @@
-import { BoardSpace } from "#utils/types/monopoly.js";
+
 import Canvas from "@napi-rs/canvas";
 import { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
+import { BoardSpace } from "./classes/boardSpace";
+import { createActionRow } from "./functions/buttons";
+		
+
 export async function createPropertyOrRailroadCard(property: BoardSpace, interaction: ChatInputCommandInteraction) {
 	const canvas = Canvas.createCanvas(290, 382);
 	canvas.width = 290;
@@ -29,13 +33,13 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 		ctx.fillText("With 4 Boosts:", x + 10, 220);
 		//Prices based on how many houses
 		ctx.fillText(`$`, x + 70, 160);
-		ctx.fillText(`${property.multipliedRent[0]}`, x + 110, 160);
-		ctx.fillText(`${property.multipliedRent[1]}`, x + 110, 180);
-		ctx.fillText(`${property.multipliedRent[2]}`, x + 110, 200);
-		ctx.fillText(`${property.multipliedRent[3]}`, x + 110, 220);
+		ctx.fillText(`${property.multpliedrent[0]}`, x + 110, 160);
+		ctx.fillText(`${property.multpliedrent[1]}`, x + 110, 180);
+		ctx.fillText(`${property.multpliedrent[2]}`, x + 110, 200);
+		ctx.fillText(`${property.multpliedrent[3]}`, x + 110, 220);
 		//...the rest i guess
 		ctx.textAlign = "center";
-		ctx.fillText(`With BADGES: ${property.multipliedRent[4]}`, x, 240);
+		ctx.fillText(`With BADGES: ${property.multpliedrent[4]}`, x, 240);
 		ctx.fillText(`Mortgage Value: $${property.mortgage}`, x, 270);
 		ctx.fillText(`Boosts cost $${property.house}`, x, 290);
 		ctx.fillText(`Badges, $${property.house}. plus 4 boosts`, x, 310);
@@ -63,11 +67,12 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 
 		//Prices based on how many houses
 		ctx.fillText(`$`, x + 70, 260);
-		ctx.fillText(`${property.multipliedRent[0]}`, x + 110, 260);
-		ctx.fillText(`${property.multipliedRent[1]}`, x + 110, 290);
-		ctx.fillText(`${property.multipliedRent[2]}`, x + 110, 320);
+		ctx.fillText(`${property.multpliedrent[0]}`, x + 110, 260);
+		ctx.fillText(`${property.multpliedrent[1]}`, x + 110, 290);
+		ctx.fillText(`${property.multpliedrent[2]}`, x + 110, 320);
 	}
-
-	const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"));
-	await interaction.reply({ files: [attachment] });
-}
+	
+		const row = createActionRow(property);
+		const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"));
+		await interaction.followUp({ files: [attachment], components: [row] });
+	}
