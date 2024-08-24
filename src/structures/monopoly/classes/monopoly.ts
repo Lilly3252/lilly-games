@@ -1,4 +1,6 @@
 import { BoardSpace } from "./boardSpace";
+import { Card } from "./card";
+import { Deck } from "./deck";
 import { Player } from "./players";
 import { TurnManager } from "./turnManager";
 
@@ -6,13 +8,18 @@ export class MonopolyGame {
     players: Player[];
     board: BoardSpace[];
     turnManager: TurnManager;
+    chanceDeck: Deck;
+    communityChestDeck: Deck;
+    freeParkingMoney: number;
 
-    constructor(players: Player[], board:BoardSpace[]) {
+    constructor(players: Player[], board: BoardSpace[], chanceCards: Card[], communityChestCards: Card[]) {
         this.players = players;
         this.board = board;
         this.turnManager = new TurnManager(players);
+        this.chanceDeck = new Deck(chanceCards);
+        this.communityChestDeck = new Deck(communityChestCards);
+        this.freeParkingMoney = 0;
     }
-
 
     nextTurn() {
         const currentPlayer = this.turnManager.getCurrentPlayer();
@@ -45,6 +52,12 @@ export class MonopolyGame {
             this.handleTax(player, space);
         } else if (space.type === 'jail') {
             this.sendToJail(player);
+        } else if (space.type === 'free-parking') {
+            this.handleFreeParking(player);
+        } else if (space.type === 'go') {
+            this.handleGo(player);
+        } else if (space.type === 'go-to-jail') {
+            this.handleGoToJail(player);
         }
     }
 
@@ -54,23 +67,49 @@ export class MonopolyGame {
     }
 
     handleChance(player: Player) {
-        // Implement logic for handling Chance cards
-        console.log(`${player.name} draws a Chance card`);
+        const card = this.drawChanceCard();
+        console.log(`${player.name} draws a Chance card: ${card.description}`);
+        card.action(this, player);
     }
 
     handleCommunityChest(player: Player) {
-        // Implement logic for handling Community Chest cards
-        console.log(`${player.name} draws a Community Chest card`);
+        const card = this.drawCommunityChestCard();
+        console.log(`${player.name} draws a Community Chest card: ${card.description}`);
+        card.action(this, player);
     }
 
     handleTax(player: Player, space: BoardSpace) {
-        // Implement logic for handling tax spaces
         player.updateMoney(-space.cost);
+        this.freeParkingMoney += space.cost;
         console.log(`${player.name} pays $${space.cost} in taxes`);
     }
 
     sendToJail(player: Player) {
         player.position = this.board.findIndex(space => space.type === 'jail');
+        player.inJail = true;
         console.log(`${player.name} is sent to Jail!`);
+    }
+
+    handleFreeParking(player: Player) {
+        player.updateMoney(this.freeParkingMoney);
+        console.log(`${player.name} collects $${this.freeParkingMoney} from Free Parking`);
+        this.freeParkingMoney = 0;
+    }
+
+    handleGo(player: Player) {
+        player.updateMoney(200);
+        console.log(`${player.name} collects $200 for passing Go`);
+    }
+
+    handleGoToJail(player: Player) {
+        this.sendToJail(player);
+    }
+
+    drawChanceCard(): Card {
+        return this.chanceDeck.drawCard();
+    }
+
+    drawCommunityChestCard(): Card {
+        return this.communityChestDeck.drawCard();
     }
 }

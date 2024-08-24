@@ -1,6 +1,11 @@
+import { BoardSpace } from "#structures/monopoly/classes/boardSpace";
+import { Card } from "#structures/monopoly/classes/card";
 import { MonopolyGame } from "#structures/monopoly/classes/monopoly";
 import { Player as PlayerClass } from "#structures/monopoly/classes/players";
 import { TurnManager } from "#structures/monopoly/classes/turnManager";
+import fs from 'fs';
+import path from 'path';
+import { BoardSpaceModel, IBoardSpace } from "./boardSpace";
 import { GameModel } from "./game";
 import { IPlayer, Player } from './player';
 
@@ -18,6 +23,42 @@ const convertToIPlayer = (player:PlayerClass): IPlayer => {
 
 
 // database/model/database.ts
+
+const getBoardData = async (): Promise<IBoardSpace[]> => {
+    try {
+        const boardData = await BoardSpaceModel.find().exec();
+        return boardData;
+    } catch (err) {
+        console.error(err.message);
+        return [];
+    }
+};
+
+export async function hasMultiplePropertiesInGroup(playerName: string): Promise<boolean> {
+    const playerDoc = await getPlayerData(playerName);
+    if (!playerDoc) {
+        console.error(`Player ${playerName} not found`);
+        return false;
+    }
+
+    const board: BoardSpace[] = await getBoardData(); // Fetch board data from the database
+
+    const propertyGroups: { [key: number]: number } = {};
+
+    playerDoc.properties.forEach(property => {
+        const boardSpace = board.find(space => space.name === property.name);
+        if (boardSpace && boardSpace.group) {
+            boardSpace.group.forEach(groupId => {
+                if (!propertyGroups[groupId]) {
+                    propertyGroups[groupId] = 0;
+                }
+                propertyGroups[groupId]++;
+            });
+        }
+    });
+
+    return Object.values(propertyGroups).some(count => count > 1);
+}
 
 export async function saveGameData(game: MonopolyGame): Promise<void> {
     const playerDocs = await Promise.all(game.players.map(async player => {
@@ -44,6 +85,11 @@ export async function saveGameData(game: MonopolyGame): Promise<void> {
 
 type Player = InstanceType<typeof PlayerClass>;
 
+const loadCardData = (filePath: string): Card[] => {
+    const data = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
+    const cardData = JSON.parse(data);
+    return cardData.map((card: any) => new Card(card.type, card.description, card.amount));
+};
 function convertToPlayer(playerDoc: any): Player {
     const player = new PlayerClass(playerDoc.name);
     player.position = playerDoc.position;
@@ -63,8 +109,10 @@ export async function loadGameData(): Promise<MonopolyGame | null> {
 
     const turnManager = new TurnManager(players);
 
-    const game = new MonopolyGame(players, gameDoc.board);
-    game.turnManager = turnManager; // Assign the turn manager separately
+ const chanceCards = loadCardData('src/structures/monopoly/JSON/chance.json');
+ const communityChestCards = loadCardData('src/structures/monopoly/JSON/community.json');
+    const game = new MonopolyGame(players, gameDoc.board,chanceCards,communityChestCards);
+    game.turnManager = turnManager; 
     return game;
 }
 

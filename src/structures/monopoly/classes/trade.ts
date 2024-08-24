@@ -6,12 +6,14 @@ export class Trade {
     toPlayer: Player;
     property: Property;
     amount: number;
+    isAccepted: boolean;
 
     constructor(fromPlayer: Player, toPlayer: Player, property: Property, amount: number) {
         this.fromPlayer = fromPlayer;
         this.toPlayer = toPlayer;
         this.property = property;
         this.amount = amount;
+        this.isAccepted = false;
     }
 
     validateTrade(): boolean {
@@ -24,10 +26,12 @@ export class Trade {
     }
 
     executeTrade() {
-        if (this.validateTrade()) {
+        if (this.validateTrade() && this.isAccepted) {
             this.updatePlayerMoney();
             this.updatePlayerProperties();
             console.log(`${this.fromPlayer.name} traded ${this.property.name} to ${this.toPlayer.name} for $${this.amount}`);
+        } else {
+            console.log(`Trade not executed. Either validation failed or trade was not accepted.`);
         }
     }
 
@@ -40,5 +44,20 @@ export class Trade {
     updatePlayerMoney() {
         this.fromPlayer.updateMoney(this.amount);
         this.toPlayer.updateMoney(-this.amount);
+    }
+
+    acceptTrade() {
+        this.isAccepted = true;
+        console.log(`${this.toPlayer.name} accepted the trade.`);
+    }
+
+    rejectTrade() {
+        this.isAccepted = false;
+        console.log(`${this.toPlayer.name} rejected the trade.`);
+    }
+
+    cancelTrade() {
+        this.isAccepted = false;
+        console.log(`Trade between ${this.fromPlayer.name} and ${this.toPlayer.name} has been cancelled.`);
     }
 }

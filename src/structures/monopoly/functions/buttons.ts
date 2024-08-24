@@ -22,11 +22,16 @@ export function createActionRow(property: BoardSpace): ActionRowBuilder<ButtonBu
         .setLabel('Unmortgage')
         .setStyle(ButtonStyle.Primary);
 
+    const sellButton = new ButtonBuilder()
+        .setCustomId('sell')
+        .setLabel('Sell')
+        .setStyle(ButtonStyle.Danger);
+
     if (!property.owner) {
         return new ActionRowBuilder<ButtonBuilder>().addComponents(buyButton, auctionButton);
     } else if (property.owner && !property.isMortgaged()) {
-        return new ActionRowBuilder<ButtonBuilder>().addComponents(mortgageButton, auctionButton);
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(mortgageButton, sellButton, auctionButton);
     } else if (property.owner && property.isMortgaged()) {
-        return new ActionRowBuilder<ButtonBuilder>().addComponents(unmortgageButton, auctionButton);
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(unmortgageButton, sellButton, auctionButton);
     }
 }
