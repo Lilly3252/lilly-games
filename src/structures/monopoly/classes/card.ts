@@ -1,4 +1,7 @@
-import { MonopolyGame } from "./monopoly";
+import { convertToIPlayer, savePlayerData } from '#database/model/database';
+import { MonopolyGame } from '#structures/monopoly/classes/monopoly';
+import { Player as PlayerClass } from '#structures/monopoly/classes/players';
+
 
 export type CardType = 'advance' | 'pay' | 'collect' | 'move' | 'jail' | 'back' | 'repairs' | 'spend' | 'spend-each-player' | 'fine' | 'tax' | 'jail-card' | 'earn-each-player' | 'improvement';
 
@@ -6,163 +9,175 @@ export class Card {
     type: CardType;
     description: string;
     amount: number | string | number[];
-    action: (game: MonopolyGame, player: any) => void;
 
     constructor(type: CardType, description: string, amount: number | string | number[]) {
         this.type = type;
         this.description = description;
         this.amount = amount;
-        this.action = this.getActionFunction(type, amount);
     }
 
-    private getActionFunction(type: CardType, amount: number | string | number[]): (game: MonopolyGame, player: any) => void {
-        switch (type) {
+    async executeAction(game: MonopolyGame, player: PlayerClass) {
+        switch (this.type) {
             case 'advance':
-                return (game, player) => advanceAction(amount as string | number, game, player);
+                await advanceAction(this.amount as number | string, game, player);
+                break;
             case 'pay':
-                return (game, player) => payAction(amount as number, player);
+                await payAction(this.amount as number, player);
+                break;
             case 'collect':
-                return (game, player) => collectAction(amount as number, player);
+                await collectAction(this.amount as number, player);
+                break;
             case 'move':
-                return (game, player) => moveAction(amount as string | number, game, player);
+                await moveAction(this.amount as number | string, game, player);
+                break;
             case 'jail':
-                return (game, player) => jailAction(player);
+                await jailAction(player);
+                break;
             case 'back':
-                return (game, player) => backAction(amount as number, player, game);
+                await backAction(this.amount as number, player, game);
+                break;
             case 'repairs':
-                return (game, player) => repairsAction(amount as number[], player);
+                await repairsAction(this.amount as number[], player);
+                break;
             case 'spend':
-                return (game, player) => payAction(amount as number, player);
+                await payAction(this.amount as number, player);
+                break;
             case 'spend-each-player':
-                return (game, player) => spendEachPlayerAction(amount as number, player, game);
+                await spendEachPlayerAction(this.amount as number, player, game);
+                break;
             case 'fine':
-                return (game, player) => fineAction(amount as number, player);
+                await fineAction(this.amount as number, player);
+                break;
             case 'tax':
-                return (game, player) => taxAction(amount as number, player);
+                await taxAction(this.amount as number, player);
+                break;
             case 'jail-card':
-                return (game, player) => jailCardAction(player);
+                await jailCardAction(player);
+                break;
             case 'earn-each-player':
-                return (game, player) => earnEachPlayerAction(amount as number, player, game);
+                await earnEachPlayerAction(this.amount as number, player, game);
+                break;
             case 'improvement':
-                return (game, player) => improvementAction(amount as number[], player);
+                await improvementAction(this.amount as number[], player);
+                break;
             default:
-                return () => console.log('Unknown action');
+                console.log('Unknown action');
         }
     }
-
-    static fromJSON(json: any): Card {
-        return new Card(json.type, json.description, json.amount);
-    }
-
-    toJSON(): any {
-        return {
-            type: this.type,
-            description: this.description,
-            amount: this.amount,
-            action: this.action.toString()
-        };
-    }
 }
+
 // Define action functions
-function advanceAction(amount: number | string, game: MonopolyGame, player: any) {
+async function advanceAction(amount: number | string, game: MonopolyGame, player: PlayerClass) {
     if (typeof amount === 'number') {
         player.move(amount, game.board);
     } else if (amount === 'utility') {
-        // Logic to move to the nearest utility
         const nearestUtility = game.board.find(space => space.type === 'utility');
         if (nearestUtility) {
             player.position = nearestUtility.position;
         }
     } else if (amount === 'railroad') {
-        // Logic to move to the nearest railroad
         const nearestRailroad = game.board.find(space => space.type === 'railroad');
         if (nearestRailroad) {
             player.position = nearestRailroad.position;
         }
     }
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Advance by ${amount}`);
 }
 
-function payAction(amount: number, player: any) {
+async function payAction(amount: number, player: PlayerClass) {
     player.money -= amount;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay ${amount}`);
 }
 
-function collectAction(amount: number, player: any) {
+async function collectAction(amount: number, player: PlayerClass) {
     player.money += amount;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Collect ${amount}`);
 }
 
-function moveAction(amount: number | string, game: MonopolyGame, player: any) {
+async function moveAction(amount: number | string, game: MonopolyGame, player: PlayerClass) {
     if (typeof amount === 'number') {
         player.move(amount, game.board);
     } else {
-        // Logic to move to a specific location
         const targetSpace = game.board.find(space => space.name === amount);
         if (targetSpace) {
             player.position = targetSpace.position;
         }
     }
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Move to ${amount}`);
 }
 
-function jailAction(player: any) {
+async function jailAction(player: PlayerClass) {
     player.inJail = true;
+    await savePlayerData(convertToIPlayer(player));
     console.log('Go to Jail');
 }
 
-function backAction(amount: number, player: any, game: MonopolyGame) {
+async function backAction(amount: number, player: PlayerClass, game: MonopolyGame) {
     player.move(-amount, game.board);
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Go back ${amount} spaces`);
 }
 
-function repairsAction(amount: number[], player: any) {
+async function repairsAction(amount: number[], player: PlayerClass) {
     const houses = player.properties.reduce((acc: number, property: any) => acc + property.houses, 0);
     const hotels = player.properties.reduce((acc: number, property: any) => acc + property.hotels, 0);
     const totalCost = (houses * amount[0]) + (hotels * amount[1]);
     player.money -= totalCost;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay ${amount[0]} per house and ${amount[1]} per hotel`);
 }
 
-function spendEachPlayerAction(amount: number, player: any, game: MonopolyGame) {
-    game.players.forEach((p: any) => {
+async function spendEachPlayerAction(amount: number, player: PlayerClass, game: MonopolyGame) {
+    game.players.forEach(async (p: PlayerClass) => {
         if (p !== player) {
             player.money -= amount;
             p.money += amount;
+            await savePlayerData(convertToIPlayer(p));
         }
     });
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay each player ${amount}`);
 }
 
-function fineAction(amount: number, player: any) {
+async function fineAction(amount: number, player: PlayerClass) {
     player.money -= amount;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay fine of ${amount}`);
 }
 
-function taxAction(amount: number, player: any) {
+async function taxAction(amount: number, player: PlayerClass) {
     player.money -= amount;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay tax of ${amount}`);
 }
 
-function jailCardAction(player: any) {
+async function jailCardAction(player: PlayerClass) {
     player.getOutOfJailFreeCards += 1;
+    await savePlayerData(convertToIPlayer(player));
     console.log('Get out of Jail free card');
 }
 
-function earnEachPlayerAction(amount: number, player: any, game: MonopolyGame) {
-    game.players.forEach((p: any) => {
+async function earnEachPlayerAction(amount: number, player: PlayerClass, game: MonopolyGame) {
+    game.players.forEach(async (p: PlayerClass) => {
         if (p !== player) {
             player.money += amount;
             p.money -= amount;
+            await savePlayerData(convertToIPlayer(p));
         }
     });
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Collect ${amount} from each player`);
 }
 
-function improvementAction(amount: number[], player: any) {
+async function improvementAction(amount: number[], player: PlayerClass) {
     const houses = player.properties.reduce((acc: number, property: any) => acc + property.houses, 0);
     const hotels = player.properties.reduce((acc: number, property: any) => acc + property.hotels, 0);
     const totalCost = (houses * amount[0]) + (hotels * amount[1]);
     player.money -= totalCost;
+    await savePlayerData(convertToIPlayer(player));
     console.log(`Pay ${amount[0]} per house and ${amount[1]} per hotel`);
 }
