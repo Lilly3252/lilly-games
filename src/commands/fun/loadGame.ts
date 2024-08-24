@@ -8,7 +8,7 @@ export const run: SlashCommand['run'] = async (interaction: ChatInputCommandInte
     const game = await loadGameData();
     if (game) {
         // Set the loaded game as the current game
-        // This might involve updating the game manager or other relevant components
+        // THIS MIGHT involve updating the game manager or other relevant components
         await interaction.reply('Game state has been loaded successfully!');
     } else {
         await interaction.reply('No saved game found. Use /startgame to start a new game.');

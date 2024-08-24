@@ -52,7 +52,12 @@ export class Property {
             this.owner = player;
             this.isOwned = true;
             player.money -= this.cost;
-            player.properties.push({ name: this.name, mortgaged: this.mortgaged });
+            player.properties.push({
+                name: this.name, mortgaged: this.mortgaged,
+                house: 0,
+                houses: 0,
+                group: []
+            });
         }
     }
 

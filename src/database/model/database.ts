@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { BoardSpaceModel, IBoardSpace } from "./boardSpace";
 import { GameModel } from "./game";
-import { IPlayer, Player } from './player';
+import { IPlayer, PlayerModel } from './player';
 
 
 const convertToIPlayer = (player:PlayerClass): IPlayer => {
@@ -18,7 +18,7 @@ const convertToIPlayer = (player:PlayerClass): IPlayer => {
         inJail: player.inJail,
         getOutOfJailFreeCards: player.getOutOfJailFreeCards,
         position: player.position
-    } as IPlayer;
+    } as unknown as IPlayer;
 };
 
 
@@ -62,7 +62,7 @@ export async function hasMultiplePropertiesInGroup(playerName: string): Promise<
 
 export async function saveGameData(game: MonopolyGame): Promise<void> {
     const playerDocs = await Promise.all(game.players.map(async player => {
-        const playerDoc = new Player({
+        const playerDoc = new PlayerModel({
             name: player.name,
             position: player.position,
             money: player.money,
@@ -85,7 +85,7 @@ export async function saveGameData(game: MonopolyGame): Promise<void> {
 
 type Player = InstanceType<typeof PlayerClass>;
 
-const loadCardData = (filePath: string): Card[] => {
+export const loadCardData = (filePath: string): Card[] => {
     const data = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
     const cardData = JSON.parse(data);
     return cardData.map((card: any) => new Card(card.type, card.description, card.amount));
@@ -119,7 +119,7 @@ export async function loadGameData(): Promise<MonopolyGame | null> {
 
 const savePlayerData = async (player: IPlayer):Promise<IPlayer> =>  {
     try {
-        const existingPlayer = await Player.findOne({ name: player.name });
+        const existingPlayer = await PlayerModel.findOne({ name: player.name });
         if (existingPlayer) {
             existingPlayer.money = player.money;
             existingPlayer.properties = player.properties;
@@ -128,7 +128,7 @@ const savePlayerData = async (player: IPlayer):Promise<IPlayer> =>  {
             existingPlayer.position = player.position;
             await existingPlayer.save();
         } else {
-            const newPlayer = new Player(player);
+            const newPlayer = new PlayerModel(player);
             await newPlayer.save();
         }
         console.log('Player data saved'); 
@@ -140,7 +140,7 @@ const savePlayerData = async (player: IPlayer):Promise<IPlayer> =>  {
 
 const getPlayerData = async (playerName: string): Promise<IPlayer | null> => {
     try {
-        const playerData = await Player.findOne({ name: playerName });
+        const playerData = await PlayerModel.findOne({ name: playerName });
         return playerData;
     } catch (err) {
         console.error(err.message);

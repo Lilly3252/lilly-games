@@ -3,32 +3,42 @@ import mongoose, { Document, Schema } from 'mongoose';
 interface IProperty {
     name: string;
     mortgaged: boolean;
+    house: number;
+    houses: number;
+    group: number[];
 }
 
 interface IPlayer extends Document {
     name: string;
+    position: number;
     money: number;
     properties: IProperty[];
     inJail: boolean;
     getOutOfJailFreeCards: number;
-    position: number;
+    isBankrupt: boolean;
+    jailTurns: number;
 }
 
 const PropertySchema: Schema = new Schema({
     name: { type: String, required: true },
-    mortgaged: { type: Boolean, required: true }
+    mortgaged: { type: Boolean, default: false },
+    house: { type: Number, default: 0 },
+    houses: { type: Number, default: 0 },
+    group: { type: [Number], default: [] }
 });
 
 const PlayerSchema: Schema = new Schema({
     name: { type: String, required: true },
-    money: { type: Number, required: true },
-    properties: { type: [PropertySchema], required: true },
-    inJail: { type: Boolean, required: true },
-    getOutOfJailFreeCards: { type: Number, required: true },
-    position: { type: Number, required: true }
+    position: { type: Number, default: 0 },
+    money: { type: Number, default: 1500 },
+    properties: { type: [PropertySchema], default: [] },
+    inJail: { type: Boolean, default: false },
+    getOutOfJailFreeCards: { type: Number, default: 0 },
+    isBankrupt: { type: Boolean, default: false },
+    jailTurns: { type: Number, default: 0 }
 });
 
-const Player = mongoose.model<IPlayer>('Player', PlayerSchema);
+const PlayerModel = mongoose.model<IPlayer>('Player', PlayerSchema);
 
-export { IPlayer, Player };
+export { IPlayer, IProperty, PlayerModel };
 

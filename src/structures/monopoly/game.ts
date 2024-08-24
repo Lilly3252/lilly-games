@@ -1,5 +1,7 @@
+import { loadCardData } from "#database/model/database";
 import { readFileSync } from "node:fs";
 import { BoardSpace } from "./classes/boardSpace";
-import { MonopolyGame } from "./classes/monopoly";
 export const boardData: BoardSpace[] = JSON.parse(readFileSync('board.json', 'utf-8'));
-export const game = new MonopolyGame([], boardData);
+export const chanceCards = loadCardData('src/structures/monopoly/JSON/chance.json');
+export const communityChestCards = loadCardData('src/structures/monopoly/JSON/community.json');
+export const gameDataMap = new Map()

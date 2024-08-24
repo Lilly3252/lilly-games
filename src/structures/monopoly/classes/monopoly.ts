@@ -1,3 +1,4 @@
+import { getPlayerData, savePlayerData } from "#database/model/database";
 import { BoardSpace } from "./boardSpace";
 import { Card } from "./card";
 import { Deck } from "./deck";
@@ -20,7 +21,22 @@ export class MonopolyGame {
         this.communityChestDeck = new Deck(communityChestCards);
         this.freeParkingMoney = 0;
     }
+    async savePlayerData(player: Player): Promise<void> {
+        const playerData = await getPlayerData(player.name);
+        if (playerData) {
+            playerData.position = player.position;
+            playerData.money = player.money;
+            playerData.properties = player.properties;
+            playerData.inJail = player.inJail;
+            playerData.getOutOfJailFreeCards = player.getOutOfJailFreeCards;
+            await savePlayerData(playerData);
+        }
+    }
 
+    addPlayer(player: Player) {
+        this.players.push(player);
+        this.turnManager.players = this.players; // Update the TurnManager's player list
+    }
     nextTurn() {
         const currentPlayer = this.turnManager.getCurrentPlayer();
         const diceRoll = this.rollDice();

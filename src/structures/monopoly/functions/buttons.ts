@@ -35,3 +35,12 @@ export function createActionRow(property: BoardSpace): ActionRowBuilder<ButtonBu
         return new ActionRowBuilder<ButtonBuilder>().addComponents(unmortgageButton, sellButton, auctionButton);
     }
 }
+export const acceptButton = new ButtonBuilder()
+.setCustomId('accept')
+.setLabel('Accept')
+.setStyle(ButtonStyle.Success);
+
+export const declineButton = new ButtonBuilder()
+.setCustomId('decline')
+.setLabel('Decline')
+.setStyle(ButtonStyle.Danger);

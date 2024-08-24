@@ -1,3 +1,4 @@
+import { IProperty, PlayerModel } from "#database/model/player";
 import { BoardSpace } from "./boardSpace";
 import { Property } from "./property";
 
@@ -5,7 +6,7 @@ export class Player {
     name: string;
     position: number;
     money: number;
-    properties: { name: string, mortgaged: boolean }[];
+    properties: IProperty[];
     inJail: boolean;
     getOutOfJailFreeCards: number;
     isBankrupt: boolean;
@@ -13,30 +14,45 @@ export class Player {
 
     constructor(name: string) {
         this.name = name;
-        this.position = 0; // Starting position on the board
-        this.money = 1500; // Starting money for each player
-        this.properties = []; // List of properties owned by the player
+        this.position = 0;
+        this.money = 1500;
+        this.properties = [];
         this.inJail = false;
         this.getOutOfJailFreeCards = 0;
         this.isBankrupt = false;
         this.jailTurns = 0;
     }
 
-    declareBankruptcy(toPlayer: Player | null) {
+    async save() {
+        const playerData = await PlayerModel.findOne({ name: this.name });
+        if (playerData) {
+            playerData.position = this.position;
+            playerData.money = this.money;
+            playerData.properties = this.properties;
+            playerData.inJail = this.inJail;
+            playerData.getOutOfJailFreeCards = this.getOutOfJailFreeCards;
+            playerData.isBankrupt = this.isBankrupt;
+            playerData.jailTurns = this.jailTurns;
+            await playerData.save();
+        } else {
+            const newPlayer = new PlayerModel(this);
+            await newPlayer.save();
+        }
+    }
+
+    async declareBankruptcy(toPlayer: Player | null) {
         if (toPlayer) {
-            // Transfer properties to the other player
             this.properties.forEach(property => {
                 toPlayer.addProperty(property.name);
             });
-            // Transfer money to the other player
             toPlayer.updateMoney(this.money);
         }
-        // Reset player's assets
         this.properties = [];
         this.money = 0;
         this.inJail = false;
         this.getOutOfJailFreeCards = 0;
         this.isBankrupt = true;
+        await this.save();
     }
 
     getCurrentBoardSpaceName(board: BoardSpace[]): string {
@@ -44,7 +60,8 @@ export class Player {
     }
 
     move(steps: number, board: BoardSpace[]) {
-        this.position = (this.position + steps) % board.length; // Move the player and wrap around the board
+        this.position = (this.position + steps) % board.length;
+        this.save();
     }
 
     isPropertyMortgaged(propertyName: string): boolean {
@@ -53,18 +70,27 @@ export class Player {
     }
 
     addProperty(property: string) {
-        this.properties.push({ name: property, mortgaged: false }); // Add a new property to the player's list
+        this.properties.push({
+            name: property,
+            mortgaged: false,
+            house: 0,
+            houses: 0,
+            group: []
+        });
+        this.save();
     }
 
     updateMoney(amount: number) {
-        this.money += amount; // Update the player's money by the specified amount
+        this.money += amount;
+        this.save();
     }
 
     mortgageProperty(property: string, mortgageValue: number): boolean {
         const prop = this.properties.find(p => p.name === property && !p.mortgaged);
         if (prop) {
-            prop.mortgaged = true; // Mark the property as mortgaged
-            this.updateMoney(mortgageValue); // Add the mortgage value to the player's money
+            prop.mortgaged = true;
+            this.updateMoney(mortgageValue);
+            this.save();
             return true;
         }
         return false;
@@ -73,8 +99,9 @@ export class Player {
     unmortgageProperty(property: string, mortgageValue: number): boolean {
         const prop = this.properties.find(p => p.name === property && p.mortgaged);
         if (prop && this.money >= mortgageValue * 1.1) {
-            prop.mortgaged = false; // Mark the property as unmortgaged
-            this.updateMoney(-mortgageValue * 1.1); // Deduct the mortgage value plus interest from the player's money
+            prop.mortgaged = false;
+            this.updateMoney(-mortgageValue * 1.1);
+            this.save();
             return true;
         }
         return false;
@@ -84,6 +111,7 @@ export class Player {
         if (this.money >= amount) {
             this.updateMoney(-amount);
             toPlayer.updateMoney(amount);
+            this.save();
             return true;
         }
         return false;
@@ -93,6 +121,7 @@ export class Player {
         if (this.money >= property.houseCost && property.houses < 4 && !property.hotel) {
             this.updateMoney(-property.houseCost);
             property.houses += 1;
+            this.save();
             return true;
         }
         return false;
@@ -103,6 +132,7 @@ export class Player {
             this.updateMoney(-property.hotelCost);
             property.hotel = true;
             property.houses = 0;
+            this.save();
             return true;
         }
         return false;
@@ -112,6 +142,7 @@ export class Player {
         const propertyIndex = this.properties.findIndex(p => p.name === propertyName);
         if (propertyIndex !== -1) {
             this.properties.splice(propertyIndex, 1);
+            this.save();
             return true;
         }
         return false;
@@ -121,6 +152,7 @@ export class Player {
         if (this.getOutOfJailFreeCards > 0) {
             this.getOutOfJailFreeCards -= 1;
             this.inJail = false;
+            this.save();
             return true;
         }
         return false;
@@ -130,5 +162,6 @@ export class Player {
         if (this.inJail) {
             this.jailTurns += 1;
         }
+        this.save();
     }
 }
