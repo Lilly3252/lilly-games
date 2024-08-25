@@ -9,8 +9,12 @@ import { BoardSpaceModel, IBoardSpace } from "./boardSpace";
 import { GameModel } from "./game";
 import { IPlayer, PlayerModel } from './player';
 
-
-const convertToIPlayer = (player:PlayerClass): IPlayer => {
+/**
+ * Converts a PlayerClass instance to an IPlayer object.
+ * @param player - The PlayerClass instance to convert.
+ * @returns The converted IPlayer object.
+ */
+const convertToIPlayer = (player: PlayerClass): IPlayer => {
     return {
         name: player.name,
         money: player.money,
@@ -21,9 +25,10 @@ const convertToIPlayer = (player:PlayerClass): IPlayer => {
     } as unknown as IPlayer;
 };
 
-
-// database/model/database.ts
-
+/**
+ * Fetches the board data from the database.
+ * @returns A promise that resolves to an array of IBoardSpace objects.
+ */
 const getBoardData = async (): Promise<IBoardSpace[]> => {
     try {
         const boardData = await BoardSpaceModel.find().exec();
@@ -34,6 +39,11 @@ const getBoardData = async (): Promise<IBoardSpace[]> => {
     }
 };
 
+/**
+ * Checks if a player has multiple properties in the same group.
+ * @param playerName - The name of the player.
+ * @returns A promise that resolves to a boolean indicating if the player has multiple properties in the same group.
+ */
 export async function hasMultiplePropertiesInGroup(playerName: string): Promise<boolean> {
     const playerDoc = await getPlayerData(playerName);
     if (!playerDoc) {
@@ -60,6 +70,10 @@ export async function hasMultiplePropertiesInGroup(playerName: string): Promise<
     return Object.values(propertyGroups).some(count => count > 1);
 }
 
+/**
+ * Saves the game data to the database.
+ * @param game - The MonopolyGame instance to save.
+ */
 export async function saveGameData(game: MonopolyGame): Promise<void> {
     const playerDocs = await Promise.all(game.players.map(async player => {
         const playerDoc = new PlayerModel({
@@ -85,11 +99,22 @@ export async function saveGameData(game: MonopolyGame): Promise<void> {
 
 type Player = InstanceType<typeof PlayerClass>;
 
+/**
+ * Loads card data from a JSON file.
+ * @param filePath - The path to the JSON file.
+ * @returns An array of Card objects.
+ */
 export const loadCardData = (filePath: string): Card[] => {
     const data = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
     const cardData = JSON.parse(data);
     return cardData.map((card: any) => new Card(card.type, card.description, card.amount));
 };
+
+/**
+ * Converts a player document to a Player instance.
+ * @param playerDoc - The player document to convert.
+ * @returns The converted Player instance.
+ */
 function convertToPlayer(playerDoc: any): Player {
     const player = new PlayerClass(playerDoc.name);
     player.position = playerDoc.position;
@@ -99,6 +124,11 @@ function convertToPlayer(playerDoc: any): Player {
     player.getOutOfJailFreeCards = playerDoc.getOutOfJailFreeCards;
     return player;
 }
+
+/**
+ * Loads game data from the database.
+ * @returns A promise that resolves to a MonopolyGame instance or null if no game is found.
+ */
 export async function loadGameData(): Promise<MonopolyGame | null> {
     const gameDoc = await GameModel.findOne().populate('players').exec();
     if (!gameDoc) {
@@ -109,15 +139,19 @@ export async function loadGameData(): Promise<MonopolyGame | null> {
 
     const turnManager = new TurnManager(players);
 
- const chanceCards = loadCardData('src/structures/monopoly/JSON/chance.json');
- const communityChestCards = loadCardData('src/structures/monopoly/JSON/community.json');
-    const game = new MonopolyGame(players, gameDoc.board,chanceCards,communityChestCards);
-    game.turnManager = turnManager; 
+    const chanceCards = loadCardData('src/structures/monopoly/JSON/chance.json');
+    const communityChestCards = loadCardData('src/structures/monopoly/JSON/community.json');
+    const game = new MonopolyGame(players, gameDoc.board, chanceCards, communityChestCards);
+    game.turnManager = turnManager;
     return game;
 }
 
-
-const savePlayerData = async (player: IPlayer):Promise<IPlayer> =>  {
+/**
+ * Saves player data to the database.
+ * @param player - The IPlayer object to save.
+ * @returns A promise that resolves to the saved IPlayer object.
+ */
+const savePlayerData = async (player: IPlayer): Promise<IPlayer> => {
     try {
         const existingPlayer = await PlayerModel.findOne({ name: player.name });
         if (existingPlayer) {
@@ -131,13 +165,19 @@ const savePlayerData = async (player: IPlayer):Promise<IPlayer> =>  {
             const newPlayer = new PlayerModel(player);
             await newPlayer.save();
         }
-        console.log('Player data saved'); 
-        return
+        console.log('Player data saved');
+        return player;
     } catch (err) {
         console.error(err.message);
+        throw err;
     }
 };
 
+/**
+ * Fetches player data from the database.
+ * @param playerName - The name of the player.
+ * @returns A promise that resolves to the IPlayer object or null if no player is found.
+ */
 const getPlayerData = async (playerName: string): Promise<IPlayer | null> => {
     try {
         const playerData = await PlayerModel.findOne({ name: playerName });

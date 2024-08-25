@@ -9,6 +9,7 @@ interface IProperty {
 }
 
 interface IPlayer extends Document {
+    userId: string;
     name: string;
     position: number;
     money: number;
@@ -28,6 +29,7 @@ const PropertySchema: Schema = new Schema({
 });
 
 const PlayerSchema: Schema = new Schema({
+    userId: { type: String, required: true }, 
     name: { type: String, required: true },
     position: { type: Number, default: 0 },
     money: { type: Number, default: 1500 },

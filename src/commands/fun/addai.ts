@@ -5,7 +5,19 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export const slashy: SlashCommand['slashy'] = new SlashCommandBuilder()
     .setName('addai')
-    .setDescription('Add an AI player to the game');
+    .setDescription('Add AI players to the game')
+    .addIntegerOption(option => 
+        option.setName('count')
+            .setDescription('Number of AI players to add')
+            .setRequired(true)
+            .setMinValue(1)
+            .setMaxValue(7)
+    )
+    .addStringOption(option => 
+        option.setName('names')
+            .setDescription('Comma-separated list of AI player names')
+            .setRequired(false)
+    );
 
 export const run: SlashCommand['run'] = async (
     game: MonopolyGame,
@@ -15,7 +27,17 @@ export const run: SlashCommand['run'] = async (
         await interaction.reply('No game found in this channel.');
         return;
     }
-    const aiPlayer = new AIPlayer('AI Bot');
-    game.addPlayer(aiPlayer);
-    await interaction.reply('AI player added to the game!');
+
+    const count = interaction.options.getInteger('count', true);
+    const names = interaction.options.getString('names');
+    const nameList = names ? names.split(',').map(name => name.trim()) : [];
+
+    // Add the specified number of AI players to the game
+    for (let aiIndex = 0; aiIndex < count; aiIndex++) {
+        const aiName = nameList[aiIndex] || `AI Bot ${aiIndex + 1}`;
+        const aiPlayer = new AIPlayer(aiName);
+        game.addPlayer(aiPlayer);
+    }
+
+    await interaction.reply(`${count} AI player(s) added to the game!`);
 };

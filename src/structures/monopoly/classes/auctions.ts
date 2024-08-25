@@ -1,12 +1,20 @@
 import { Player } from "./players";
 import { Property } from "./property";
 
+/**
+ * Represents an auction in the Monopoly game.
+ */
 export class Auction {
     property: Property;
     players: Player[];
     highestBid: number;
     highestBidder: Player | null;
 
+    /**
+     * Creates an instance of Auction.
+     * @param property - The property being auctioned.
+     * @param players - The players participating in the auction.
+     */
     constructor(property: Property, players: Player[]) {
         this.property = property;
         this.players = players;
@@ -14,6 +22,11 @@ export class Auction {
         this.highestBidder = null;
     }
 
+    /**
+     * Initializes the auction with a property and players.
+     * @param property - The property being auctioned.
+     * @param players - The players participating in the auction.
+     */
     initializeAuction(property: Property, players: Player[]) {
         this.property = property;
         this.players = players;
@@ -21,6 +34,11 @@ export class Auction {
         this.highestBidder = null;
     }
 
+    /**
+     * Places a bid in the auction.
+     * @param player - The player placing the bid.
+     * @param amount - The amount of the bid.
+     */
     placeBid(player: Player, amount: number) {
         if (amount > this.highestBid) {
             this.highestBid = amount;
@@ -31,6 +49,9 @@ export class Auction {
         }
     }
 
+    /**
+     * Finalizes the auction and transfers the property to the highest bidder.
+     */
     finalizeAuction() {
         if (this.highestBidder) {
             this.updatePlayerMoney();
@@ -42,6 +63,9 @@ export class Auction {
         }
     }
 
+    /**
+     * Updates the money of the highest bidder.
+     */
     updatePlayerMoney() {
         if (this.highestBidder) {
             this.highestBidder.updateMoney(-this.highestBid);

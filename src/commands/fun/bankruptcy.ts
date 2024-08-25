@@ -5,7 +5,12 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export const slashy: SlashCommand['slashy'] = new SlashCommandBuilder()
     .setName('bankrupt')
-    .setDescription('Declare bankruptcy');
+    .setDescription('Declare bankruptcy')
+    .addStringOption(option => 
+        option.setName('toPlayers')
+            .setDescription('Comma-separated list of players to share assets with')
+            .setRequired(true)
+    );
 
 export const run: SlashCommand['run'] = async (
     game: MonopolyGame,
@@ -13,12 +18,12 @@ export const run: SlashCommand['run'] = async (
 ): Promise<void> => {
     if (game) {
         const currentPlayer = game.turnManager.getCurrentPlayer();
-        const toPlayerName = interaction.options.getString('toPlayer');
-        const toPlayer = game.players.find(player => player.name === toPlayerName) || null;
+        const toPlayersNames = interaction.options.getString('toPlayers')?.split(',').map(name => name.trim()) || [];
+        const toPlayers = game.players.filter(player => toPlayersNames.includes(player.name));
 
-        currentPlayer.declareBankruptcy(toPlayer);
+        currentPlayer.declareBankruptcy(toPlayers);
 
-        await interaction.reply(`${currentPlayer.name} has declared bankruptcy!`);
+        await interaction.reply(`${currentPlayer.name} has declared bankruptcy and shared assets with ${toPlayersNames.join(', ')}!`);
 
         // Update player data in the database
         const playerData = await getPlayerData(currentPlayer.name);
@@ -31,7 +36,7 @@ export const run: SlashCommand['run'] = async (
             await savePlayerData(playerData);
         }
 
-        if (toPlayer) {
+        for (const toPlayer of toPlayers) {
             const toPlayerData = await getPlayerData(toPlayer.name);
             if (toPlayerData) {
                 toPlayerData.position = toPlayer.position;
@@ -45,4 +50,4 @@ export const run: SlashCommand['run'] = async (
     } else {
         await interaction.reply('No game is currently running. Use /startgame to start a new game.');
     }
-};
+}

@@ -1,11 +1,23 @@
 import { MonopolyGame } from "#structures/monopoly/classes/monopoly";
 import { Player } from "#structures/monopoly/classes/players";
 
+/**
+ * Represents an AI player in the Monopoly game.
+ */
 export class AIPlayer extends Player {
+    /**
+     * Creates an instance of AIPlayer.
+     * @param name - The name of the AI player.
+     */
     constructor(name: string) {
-        super(name);
+        super(null, true);
+        this.name = name;
     }
 
+    /**
+     * Makes a move for the AI player.
+     * @param game - The Monopoly game instance.
+     */
     async makeMove(game: MonopolyGame) {
         this.handleJailSituation();
         const diceRoll = game.rollDice();
@@ -20,6 +32,10 @@ export class AIPlayer extends Player {
         await game.savePlayerData(this);
     }
 
+    /**
+     * Buys a property for the AI player.
+     * @param space - The space representing the property to buy.
+     */
     async buyProperty(space: any) {
         if (this.money >= space.cost) {
             this.money -= space.cost;
@@ -30,6 +46,10 @@ export class AIPlayer extends Player {
         }
     }
 
+    /**
+     * Manages the properties of the AI player.
+     * @param game - The Monopoly game instance.
+     */
     async manageProperties(game: MonopolyGame) {
         for (const property of this.properties) {
             const groupProperties = game.board.filter(space => space.group.includes(property.group[0]));
@@ -44,6 +64,10 @@ export class AIPlayer extends Player {
         }
     }
 
+    /**
+     * Proposes a trade with other players.
+     * @param game - The Monopoly game instance.
+     */
     async proposeTrade(game: MonopolyGame) {
         for (const player of game.players) {
             if (player !== this) {
@@ -63,6 +87,12 @@ export class AIPlayer extends Player {
         }
     }
 
+    /**
+     * Executes a trade with another player.
+     * @param player - The player to trade with.
+     * @param property - The property to trade.
+     * @returns A promise that resolves to a boolean indicating whether the trade was successful.
+     */
     async executeTrade(player: Player, property: any): Promise<boolean> {
         const offerAmount = property.cost * 1.2; //  120% 
         if (player.money >= offerAmount) {
@@ -77,6 +107,9 @@ export class AIPlayer extends Player {
         return false;
     }
 
+    /**
+     * Handles the jail situation for the AI player.
+     */
     handleJailSituation() {
         if (this.inJail) {
             if (this.getOutOfJailFreeCards > 0) {

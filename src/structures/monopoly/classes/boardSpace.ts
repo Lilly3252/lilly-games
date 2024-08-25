@@ -1,5 +1,8 @@
 import { Player } from "./players";
 
+/**
+ * Represents a space on the Monopoly board.
+ */
 export interface BoardSpace {
     name: string;
     type: string;
@@ -15,6 +18,9 @@ export interface BoardSpace {
     position: number; // Add position property
 }
 
+/**
+ * Represents a space on the Monopoly board.
+ */
 export class BoardSpace {
     name: string;
     type: string;
@@ -29,6 +35,10 @@ export class BoardSpace {
     owner?: Player;
     position: number; // Add position property
 
+    /**
+     * Creates an instance of BoardSpace.
+     * @param data - The data to initialize the board space.
+     */
     constructor(data: BoardSpace) {
         this.name = data.name;
         this.type = data.type;
@@ -44,6 +54,10 @@ export class BoardSpace {
         this.position = data.position; // Initialize position property
     }
 
+    /**
+     * Checks if the property is mortgaged.
+     * @returns True if the property is mortgaged, false otherwise.
+     */
     isMortgaged(): boolean {
         return this.owner ? this.owner.isPropertyMortgaged(this.name) : false;
     }
