@@ -11,7 +11,7 @@ const triviaQuestions = [
     { question: "What **color** are the properties in the first set on a standard Monopoly board?", answer: "Brown" },
     { question: "What is the name of the **mascot character** in Monopoly?", answer: "Rich Uncle Pennybags" },
     { question: "How many **Chance cards** are there in a standard Monopoly game?", answer: "16" },
-    { question: "What is the **maximum number of houses** you can have on a property in Monopoly?", answer: "4" },
+    { question: "What is the maximum number of **houses** you can have on a property in Monopoly?", answer: "4" },
     { question: "What is the name of the space where you collect **$200** in Monopoly?", answer: "Go" },
     { question: "What is the penalty for landing on the **Income Tax** space in Monopoly?", answer: "$200 or 10% of your total assets" },
     { question: "How many **Community Chest** cards are there in a standard Monopoly game?", answer: "16" },

@@ -107,7 +107,7 @@ type Player = InstanceType<typeof PlayerClass>;
 export const loadCardData = (filePath: string): Card[] => {
     const data = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
     const cardData = JSON.parse(data);
-    return cardData.map((card: any) => new Card(card.type, card.description, card.amount));
+    return cardData.map((card: any) => new Card(card.type, card.CardActionType , card.description, card.amount));
 };
 
 /**
@@ -115,7 +115,7 @@ export const loadCardData = (filePath: string): Card[] => {
  * @param playerDoc - The player document to convert.
  * @returns The converted Player instance.
  */
-function convertToPlayer(playerDoc: any): Player {
+export function convertToPlayer(playerDoc: any): Player {
     const player = new PlayerClass(playerDoc.name);
     player.position = playerDoc.position;
     player.money = playerDoc.money;

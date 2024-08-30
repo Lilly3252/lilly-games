@@ -1,5 +1,22 @@
+import { IProperty } from "#database/model/player";
 import { Player } from "./players";
+import { Property } from "./property";
 
+// Function to convert BoardSpace to Property
+export function convertToProperty(item: BoardSpace | IProperty): Property {
+	return new Property({
+		name: item.name,
+		color:item.color,
+		rent: item.rent,
+		multpliedrent:item.multpliedrent,
+		mortgage:item.mortgage,
+		house: item.house,
+		hotel: item.hotel,
+		owner: item.owner,
+		isMortgaged: item.isMortgaged(),
+		type: item.type
+	});
+}  
 /**
  * Represents a space on the Monopoly board.
  */
@@ -13,6 +30,7 @@ export interface BoardSpace {
     multpliedrent?: number[];
     group?: number[];
     house?: number;
+    hotel?: number | null
     corner?: boolean;
     owner?: Player;
     position: number; // Add position property

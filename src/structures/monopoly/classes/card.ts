@@ -2,13 +2,15 @@ import { convertToIPlayer, savePlayerData } from '#database/model/database';
 import { MonopolyGame } from '#structures/monopoly/classes/monopoly';
 import { Player as PlayerClass } from '#structures/monopoly/classes/players';
 
+export type CardType = "Chance" | "Community"
+export type CardActionType = 'advance' | 'pay' | 'collect' | 'move' | 'jail' | 'back' | 'repairs' | 'spend' | 'spend-each-player' | 'fine' | 'tax' | 'jail-card' | 'earn-each-player' | 'improvement';
 
-export type CardType = 'advance' | 'pay' | 'collect' | 'move' | 'jail' | 'back' | 'repairs' | 'spend' | 'spend-each-player' | 'fine' | 'tax' | 'jail-card' | 'earn-each-player' | 'improvement';
 /**
  * Represents a card in the Monopoly game.
  */
 export class Card {
     type: CardType;
+    actionType:CardActionType
     description: string;
     amount: number | string | number[];
  /**
@@ -17,8 +19,9 @@ export class Card {
      * @param description - The description of the card.
      * @param amount - The amount associated with the card.
      */
-    constructor(type: CardType, description: string, amount: number | string | number[]) {
+    constructor(type: CardType,actionType:CardActionType ,  description: string, amount: number | string | number[]) {
         this.type = type;
+        this.actionType = actionType;
         this.description = description;
         this.amount = amount;
     }
@@ -28,7 +31,7 @@ export class Card {
      * @param player - The player executing the action.
      */
     async executeAction(game: MonopolyGame, player: PlayerClass) {
-        switch (this.type) {
+        switch (this.actionType) {
             case 'advance':
                 await advanceAction(this.amount as number | string, game, player);
                 break;

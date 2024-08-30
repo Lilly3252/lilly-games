@@ -29,3 +29,8 @@ export interface guildSetting {
 export interface links {
 	domains: string;
 }
+export interface Achievement {
+    name: string;
+    description: string;
+    dateEarned: Date;
+}

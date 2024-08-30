@@ -109,102 +109,125 @@ export class Property {
         }
     }
 
-    /**
-     * Buys the property for a player.
-     * @param player - The player buying the property.
-     */
-    buyProperty(player: Player): void {
-        if (!this.isOwned) {
-            this.owner = player;
-            this.isOwned = true;
-            player.money -= this.cost;
-            player.properties.push({
-                name: this.name, mortgaged: this.mortgaged,
-                house: 0,
-                houses: 0,
-                group: this.group 
-            });
-        }
+/**
+ * Buys the property for a player.
+ * @param player - The player buying the property.
+ */
+buyProperty(player: Player): void {
+    if (!this.isOwned) {
+        this.owner = player;
+        this.isOwned = true;
+        player.money -= this.cost;
+
+        const newProperty: IProperty = {
+            name: this.name,
+            type: 'property', // Assuming a default type
+            cost: this.cost,
+            mortgage: this.mortgage,
+            mortgaged: this.mortgaged,
+            color: this.color,
+            rent: this.rent,
+            multpliedrent: this.multipliedRent,
+            group: this.group,
+            house: this.houses,
+            hotel: this.hotel ? 1 : null,
+            corner: false, 
+            owner: player,
+            position: player.position, 
+            isMortgaged: () => this.mortgaged
+        };
+
+        player.properties.push(newProperty);
+        player.save();
     }
+}
 
-    /**
-     * Mortgages the property.
-     */
-    mortgageProperty(): void {
-        if (!this.isMortgaged()) {
-            this.mortgaged = true;
-            this.owner!.money += this.mortgage;
-        }
+/**
+ * Mortgages the property.
+ */
+mortgageProperty(): void {
+    if (!this.isMortgaged()) {
+        this.mortgaged = true;
+        this.owner!.money += this.mortgage;
+        this.owner!.save();
     }
+}
 
-    /**
-     * Unmortgages the property.
-     */
-    unmortgageProperty(): void {
-        if (this.isMortgaged()) {
-            this.mortgaged = false;
-            this.owner!.money -= this.mortgage;
-        }
+
+ /**
+ * Unmortgages the property.
+ */
+unmortgageProperty(): void {
+    if (this.isMortgaged()) {
+        this.mortgaged = false;
+        this.owner!.money -= this.mortgage;
+        this.owner!.save();
     }
-      /**
-     * Checks if the owner owns the entire group.
-     */
-      ownsEntireGroup(properties: Property[]): boolean {
-        const groupKey = `${this.group[0]}-${this.group[2]}`;
-        const totalPropertiesInGroup = this.group[2];
-        const ownedPropertiesInGroup = properties.filter(property => {
-            return property.group[0] === this.group[0] && property.group[2] === this.group[2] && property.owner === this.owner;
-        }).length;
+}
+/**
+ * Checks if the owner owns the entire group.
+ */
+ownsEntireGroup(properties: Property[]): boolean {
+    const groupKey = `${this.group[0]}-${this.group[2]}`;
+    const totalPropertiesInGroup = this.group[2];
+    const ownedPropertiesInGroup = properties.filter(property => {
+        return property.group[0] === this.group[0] && property.group[2] === this.group[2] && property.owner === this.owner;
+    }).length;
 
-        return ownedPropertiesInGroup === totalPropertiesInGroup;
+    return ownedPropertiesInGroup === totalPropertiesInGroup;
+}
+
+/**
+ * Builds a house on the property.
+ */
+buildHouse(properties: Property[]): void {
+    if (this.houses < 4 && !this.hotel && this.ownsEntireGroup(properties)) {
+        this.houses += 1;
+        this.owner!.money -= this.houseCost;
+        this.isDeveloped = true;
+        this.owner!.save();
     }
-
-
-        /**
-     * Builds a house on the property.
-     */
-        buildHouse(properties: Property[]): void {
-            if (this.houses < 4 && !this.hotel && this.ownsEntireGroup(properties)) {
-                this.houses += 1;
-                this.owner!.money -= this.houseCost;
-                this.isDeveloped = true;
-            }
-        }
-    
-        /**
-         * Builds a hotel on the property.
-         */
-        buildHotel(properties: Property[]): void {
-            if (this.houses === 4 && !this.hotel && this.ownsEntireGroup(properties)) {
-                this.hotel = true;
-                this.houses = 0;
-                this.owner!.money -= this.hotelCost;
-                this.isDeveloped = true;
-            }
-        }
-
-    /**
-     * Sells a house on the property.
-     */
-    sellHouse(): void {
-        if (this.houses > 0) {
-            this.houses -= 1;
-            this.owner!.money += this.houseCost / 2;
-            if (this.houses === 0 && !this.hotel) {
-                this.isDeveloped = false;
-            }
-        }
-    }
+}
 
     /**
-     * Sells a hotel on the property.
-     */
-    sellHotel(): void {
-        if (this.hotel) {
-            this.hotel = false;
-            this.houses = 4;
-            this.owner!.money += this.hotelCost / 2;
+ * Builds a hotel on the property.
+ */
+buildHotel(properties: Property[]): void {
+    if (this.houses === 4 && !this.hotel && this.ownsEntireGroup(properties)) {
+        this.hotel = true;
+        this.houses = 0;
+        this.owner!.money -= this.hotelCost;
+        this.isDeveloped = true;
+        this.owner!.save();
+    }
+}
+
+
+  /**
+ * Sells a house on the property.
+ */
+sellHouse(): void {
+    if (this.houses > 0) {
+        this.houses -= 1;
+        this.owner!.money += this.houseCost / 2;
+        if (this.houses === 0 && !this.hotel) {
             this.isDeveloped = false;
         }
+        this.owner!.save();
     }
+}
+
+
+/**
+ * Sells a hotel on the property.
+ */
+sellHotel(): void {
+    if (this.hotel) {
+        this.hotel = false;
+        this.houses = 4;
+        this.owner!.money += this.hotelCost / 2;
+        this.isDeveloped = false;
+        this.owner!.save();
+    }
+}
 }

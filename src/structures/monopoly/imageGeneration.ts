@@ -1,11 +1,11 @@
-
 import Canvas from "@napi-rs/canvas";
-import { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
-import { BoardSpace } from "./classes/boardSpace";
-import { createActionRow } from "./functions/buttons";
-		
+import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ChatInputCommandInteraction } from "discord.js";
+import { BoardSpace, convertToProperty } from "./classes/boardSpace";
+import { Property } from "./classes/property"; // Assuming Property class is imported from here
+import { CURRENCY_SYMBOL } from "./constant";
+import { auctionButton, buildHotelButton, buildHouseButton, buyButton, mortgageButton, sellButton, unmortgageButton } from "./functions/buttons";
 
-export async function createPropertyOrRailroadCard(property: BoardSpace, interaction: ChatInputCommandInteraction) {
+export async function createPropertyOrRailroadCard(property: BoardSpace, interaction: ChatInputCommandInteraction, properties: Property[]) {
 	const canvas = Canvas.createCanvas(290, 382);
 	canvas.width = 290;
 	const x = canvas.width / 2;
@@ -24,7 +24,7 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 		ctx.fillText(property.name, x, 60);
 		// White square
 		ctx.font = "20px Futura";
-		ctx.fillText(`FEES: $${property.rent}`, x, 125);
+		ctx.fillText(`FEES: ${CURRENCY_SYMBOL}${property.rent}`, x, 125);
 		// Houses
 		ctx.textAlign = "right";
 		ctx.fillText("With 1 Boost:", x + 3, 160);
@@ -40,9 +40,9 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 		//...the rest i guess
 		ctx.textAlign = "center";
 		ctx.fillText(`With BADGES: ${property.multpliedrent[4]}`, x, 240);
-		ctx.fillText(`Mortgage Value: $${property.mortgage}`, x, 270);
-		ctx.fillText(`Boosts cost $${property.house}`, x, 290);
-		ctx.fillText(`Badges, $${property.house}. plus 4 boosts`, x, 310);
+		ctx.fillText(`Mortgage Value: ${CURRENCY_SYMBOL}${property.mortgage}`, x, 270);
+		ctx.fillText(`Boosts cost ${CURRENCY_SYMBOL}${property.house}`, x, 290);
+		ctx.fillText(`Badges, ${CURRENCY_SYMBOL}${property.house}. plus 4 boosts`, x, 310);
 		ctx.font = "italic 12px Futura";
 		ctx.fillText(`If a player owns ALL the lots of any Color-group,`, x, 340);
 		ctx.fillText(`the rent is Doubled on Unimproved Lots in that group.`, x, 355);
@@ -58,7 +58,7 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 		ctx.fillText(property.name, x, 155);
 		// White square
 		ctx.font = "20px Futura";
-		ctx.fillText(`FEES: $${property.rent}`, x, 210);
+		ctx.fillText(`FEES: ${CURRENCY_SYMBOL}${property.rent}`, x, 210);
 		// Houses
 		ctx.textAlign = "right";
 		ctx.fillText("With 2 Choo Choos:", x + 45, 260);
@@ -71,8 +71,29 @@ export async function createPropertyOrRailroadCard(property: BoardSpace, interac
 		ctx.fillText(`${property.multpliedrent[1]}`, x + 110, 290);
 		ctx.fillText(`${property.multpliedrent[2]}`, x + 110, 320);
 	}
-	
-		const row = createActionRow(property);
-		const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"));
-		await interaction.followUp({ files: [attachment], components: [row] });
+
+	const propertyInstance = convertToProperty(property);
+	const row = createActionRow(propertyInstance, properties);
+	const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"));
+	await interaction.followUp({ files: [attachment], components: [row] });
+}
+
+function createActionRow(property: Property, properties: Property[]): ActionRowBuilder<ButtonBuilder> {
+	if (!property.owner) {
+		return new ActionRowBuilder<ButtonBuilder>().addComponents(buyButton, auctionButton);
+	} else if (property.owner && !property.isMortgaged) {
+		const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(mortgageButton, sellButton, auctionButton);
+
+		if (property.ownsEntireGroup(properties)) {
+			if (property.houses < 4) {
+				actionRow.addComponents(buildHouseButton);
+			} else if (property.houses === 4 && !property.hotel) {
+				actionRow.addComponents(buildHotelButton);
+			}
+		}
+
+		return actionRow;
+	} else if (property.owner && property.isMortgaged) {
+		return new ActionRowBuilder<ButtonBuilder>().addComponents(unmortgageButton, sellButton, auctionButton);
 	}
+}

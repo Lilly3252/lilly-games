@@ -1,5 +1,7 @@
-import { getPlayerData, savePlayerData } from "#database/model/database";
+import { convertToIPlayer, getPlayerData, savePlayerData } from "#database/model/database";
+import { convertToProperty } from "#structures/monopoly/classes/boardSpace";
 import { MonopolyGame } from "#structures/monopoly/classes/monopoly";
+import { checkAllAchievements, checkChanceTaker, checkCommunityHelper } from "#structures/monopoly/functions/rewards";
 import { chanceCards, communityChestCards } from "#structures/monopoly/game";
 import { createPropertyOrRailroadCard } from "#structures/monopoly/imageGeneration";
 import { SlashCommand } from "#type/slashCommands";
@@ -15,29 +17,35 @@ export const run: SlashCommand['run'] = async (game: MonopolyGame, interaction: 
         currentPlayer.move(diceRoll, game.board);
         const currentBoardSpaceName = currentPlayer.getCurrentBoardSpaceName(game.board);
         await interaction.reply(`${currentPlayer.name} rolled a ${diceRoll} and moved to ${currentBoardSpaceName} (position ${currentPlayer.position})!`);
-        await createPropertyOrRailroadCard(game.board[currentPlayer.position], interaction);
-   // Load JSON data for Chance and Community Chest cards
+        const currentBoardSpace = game.board[currentPlayer.position];
+        const properties = currentPlayer.properties.map(prop => convertToProperty(prop));
+        await createPropertyOrRailroadCard(currentBoardSpace, interaction, properties);
+        const playersData = convertToIPlayer(currentPlayer)
+
+        await checkAllAchievements(playersData)
+        
+        const chanceDeck = new Deck(chanceCards);
+        const communityDeck = new Deck(communityChestCards);
+
+        if (currentBoardSpaceName === 'Chance') {
+            const drawnCard = chanceDeck.drawCard();
+            if (drawnCard) {
+                await interaction.followUp(`You drew a Chance card: ${drawnCard.description}`);
+                drawnCard.executeAction(game, currentPlayer);
+                currentPlayer.addDrawnCard(currentPlayer , drawnCard)
+                await checkChanceTaker(playersData, currentPlayer.chanceCardsDrawn);
+            }
+        } else if (currentBoardSpaceName === 'Community Chest') {
+            const drawnCard = communityDeck.drawCard();
+            if (drawnCard) {
+                await interaction.followUp(`You drew a Community Chest card: ${drawnCard.description}`);
+                drawnCard.executeAction(game, currentPlayer);
+                currentPlayer.addDrawnCard(currentPlayer , drawnCard)
+                await checkCommunityHelper(playersData, currentPlayer.communityChestCardsDrawn);
+            }
+        }
+
   
-
-   const chanceDeck = new Deck(chanceCards);
-   const communityDeck = new Deck(communityChestCards);
-
-   // Check if the player lands on a title that requires drawing a card
-   if (currentBoardSpaceName === 'Chance') {
-       const drawnCard = chanceDeck.drawCard();
-       if (drawnCard) {
-           await interaction.followUp(`You drew a Chance card: ${drawnCard.description}`);
-           drawnCard.executeAction(game, currentPlayer);
-       }
-   } else if (currentBoardSpaceName === 'Community Chest') {
-       const drawnCard = communityDeck.drawCard();
-       if (drawnCard) {
-           await interaction.followUp(`You drew a Community Chest card: ${drawnCard.description}`);
-           drawnCard.executeAction(game, currentPlayer);
-       }
-   }
-
-        // Update player position in the database
         const playerData = await getPlayerData(currentPlayer.name);
         if (playerData) {
             playerData.position = currentPlayer.position;

@@ -1,6 +1,7 @@
 import { IProperty, PlayerModel } from "#database/model/player";
 import { User } from "discord.js";
 import { BoardSpace } from "./boardSpace";
+import { Card } from "./card";
 import { Property } from "./property";
 
 export class Player {
@@ -16,6 +17,8 @@ export class Player {
     doublesRolled: number;
     achievements: string[];
     isAI: boolean;
+    chanceCardsDrawn: number;
+    communityChestCardsDrawn: number;
 
     /**
      * Creates an instance of Player.
@@ -109,20 +112,32 @@ export class Player {
         return property ? property.mortgaged : false;
     }
 
-    /**
-     * Adds a property to the player's properties.
-     * @param property - The name of the property.
-     */
-    addProperty(property: string) {
-        this.properties.push({
-            name: property,
-            mortgaged: false,
-            house: 0,
-            houses: 0,
-            group: []
-        });
-        this.save();
-    }
+/**
+ * Adds a property to the player's properties.
+ * @param property - The property object.
+ */
+addProperty(property: IProperty) {
+    const newProperty: IProperty = {
+        name: property.name,
+        type: 'property', // Assuming a default type
+        cost: property.cost || 0,
+        mortgage: property.mortgage || 0,
+        mortgaged: property.mortgaged,
+        color: property.color || '',
+        rent: property.rent || 0,
+        multpliedrent: property.multpliedrent || [],
+        group: property.group || [],
+        house: property.house || 0,
+        hotel: property.hotel || null,
+        corner: property.corner || false,
+        owner: property.owner || null,
+        position: property.position,
+        isMortgaged: property.isMortgaged
+    };
+
+    this.properties.push(newProperty);
+    this.save()
+}
 
     /**
      * Updates the player's money by a specified amount.
@@ -242,7 +257,24 @@ export class Player {
         }
         return false;
     }
+/**
+ * Adds a drawn card to the player's record.
+ * @param player - The player who drew the card.
+ * @param card - The card that was drawn.
+ */
+async addDrawnCard(player: Player, card: Card) {
+    if (card.type === "Chance") {
+        player.chanceCardsDrawn += 1;
+    } else {
+        player.communityChestCardsDrawn += 1;
+    }
 
+    try {
+        await player.save();
+    } catch (error) {
+        console.error("Error saving player data:", error);
+    }
+}
     /**
      * Ends the player's turn.
      */

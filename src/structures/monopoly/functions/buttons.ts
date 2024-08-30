@@ -1,65 +1,60 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { Property } from '../classes/property';
+import { ButtonBuilder, ButtonStyle } from "discord.js";
 
 /**
- * Creates an action row with buttons based on the property state.
- * @param property - The property for which to create the action row.
- * @returns An ActionRowBuilder with the appropriate buttons.
+ * Button to buy a property.
  */
-export function createActionRow(property: Property, properties: Property[]): ActionRowBuilder<ButtonBuilder> {
-    const buyButton = new ButtonBuilder()
-        .setCustomId('buy')
-        .setLabel('Buy')
-        .setStyle(ButtonStyle.Primary);
+export const buyButton = new ButtonBuilder()
+    .setCustomId('buy')
+    .setLabel('Buy')
+    .setStyle(ButtonStyle.Primary);
 
-    const mortgageButton = new ButtonBuilder()
-        .setCustomId('mortgage')
-        .setLabel('Mortgage')
-        .setStyle(ButtonStyle.Primary);
+/**
+ * Button to mortgage a property.
+ */
+export const mortgageButton = new ButtonBuilder()
+    .setCustomId('mortgage')
+    .setLabel('Mortgage')
+    .setStyle(ButtonStyle.Primary);
 
-    const auctionButton = new ButtonBuilder()
-        .setCustomId('auction')
-        .setLabel('Auction')
-        .setStyle(ButtonStyle.Secondary);
+/**
+ * Button to auction a property.
+ */
+export const auctionButton = new ButtonBuilder()
+    .setCustomId('auction')
+    .setLabel('Auction')
+    .setStyle(ButtonStyle.Secondary);
 
-    const unmortgageButton = new ButtonBuilder()
-        .setCustomId('unmortgage')
-        .setLabel('Unmortgage')
-        .setStyle(ButtonStyle.Primary);
+/**
+ * Button to unmortgage a property.
+ */
+export const unmortgageButton = new ButtonBuilder()
+    .setCustomId('unmortgage')
+    .setLabel('Unmortgage')
+    .setStyle(ButtonStyle.Primary);
 
-    const sellButton = new ButtonBuilder()
-        .setCustomId('sell')
-        .setLabel('Sell')
-        .setStyle(ButtonStyle.Danger);
+/**
+ * Button to sell a property.
+ */
+export const sellButton = new ButtonBuilder()
+    .setCustomId('sell')
+    .setLabel('Sell')
+    .setStyle(ButtonStyle.Danger);
 
-    const buildHouseButton = new ButtonBuilder()
-        .setCustomId('buildHouse')
-        .setLabel('Build House')
-        .setStyle(ButtonStyle.Success);
+/**
+ * Button to build a house on a property.
+ */
+export const buildHouseButton = new ButtonBuilder()
+    .setCustomId('buildHouse')
+    .setLabel('Build House')
+    .setStyle(ButtonStyle.Success);
 
-    const buildHotelButton = new ButtonBuilder()
-        .setCustomId('buildHotel')
-        .setLabel('Build Hotel')
-        .setStyle(ButtonStyle.Success);
-
-    if (!property.owner) {
-        return new ActionRowBuilder<ButtonBuilder>().addComponents(buyButton, auctionButton);
-    } else if (property.owner && !property.isMortgaged) {
-        const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(mortgageButton, sellButton, auctionButton);
-
-        if (property.ownsEntireGroup(properties)) {
-            if (property.houses < 4) {
-                actionRow.addComponents(buildHouseButton);
-            } else if (property.houses === 4 && !property.hotel) {
-                actionRow.addComponents(buildHotelButton);
-            }
-        }
-
-        return actionRow;
-    } else if (property.owner && property.isMortgaged) {
-        return new ActionRowBuilder<ButtonBuilder>().addComponents(unmortgageButton, sellButton, auctionButton);
-    }
-}
+/**
+ * Button to build a hotel on a property.
+ */
+export const buildHotelButton = new ButtonBuilder()
+    .setCustomId('buildHotel')
+    .setLabel('Build Hotel')
+    .setStyle(ButtonStyle.Success);
 
 /**
  * Button to accept an action.
